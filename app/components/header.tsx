@@ -56,11 +56,11 @@ const Header: FC<IHeaderProps> = ({
           </>
         )}
       </div>
-      {/* mobile: icon + title centered */}
+      {/* mobile: icon + conversation title centered (falls back to the app name) */}
       {isMobile && (
         <div className="absolute inset-x-0 flex items-center justify-center gap-2 pointer-events-none">
           <AppIcon size="small" />
-          <div className="max-w-[55%] text-sm text-gray-900 dark:text-gray-100 font-semibold truncate">{title}</div>
+          <div className="max-w-[55%] text-sm text-gray-900 dark:text-gray-100 font-semibold truncate">{conversationName || title}</div>
         </div>
       )}
       {/* right: actions (mobile only) */}

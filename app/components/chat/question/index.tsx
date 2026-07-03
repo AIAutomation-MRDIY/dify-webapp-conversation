@@ -112,12 +112,12 @@ const Question: FC<IQuestionProps> = ({ id, content, imgSrcs, onEditSend }) => {
           <img
             src={user.avatar}
             alt={user.name || 'me'}
-            className='w-8 h-8 ml-2 shrink-0 rounded-full object-cover bg-gray-100'
+            className='w-10 h-10 ml-2 shrink-0 rounded-full object-cover bg-gray-100'
             referrerPolicy='no-referrer'
           />
         )
         : (
-          <div className='flex items-center justify-center w-8 h-8 ml-2 shrink-0 rounded-full bg-primary-600 text-white text-sm font-medium'>
+          <div className='flex items-center justify-center w-10 h-10 ml-2 shrink-0 rounded-full bg-primary-600 text-white text-sm font-medium'>
             {initial}
           </div>
         )}
