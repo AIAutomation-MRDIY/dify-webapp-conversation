@@ -128,3 +128,42 @@ a {
   background-clip: text;
   text-fill-color: transparent;
 }
+
+/* ===== dark mode ===== */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #18181B;
+}
+
+/* make markdown content readable on dark bubbles */
+html.dark .markdown-body {
+  color: #E5E7EB;
+  background-color: transparent;
+}
+
+html.dark .markdown-body h1,
+html.dark .markdown-body h2,
+html.dark .markdown-body h3,
+html.dark .markdown-body h4,
+html.dark .markdown-body h5,
+html.dark .markdown-body h6,
+html.dark .markdown-body strong {
+  color: #F3F4F6;
+}
+
+html.dark .markdown-body a {
+  color: #A4CAFE;
+}
+
+html.dark .markdown-body table th,
+html.dark .markdown-body table td {
+  border-color: #3F3F46;
+}
+
+html.dark .markdown-body blockquote {
+  color: #9CA3AF;
+  border-left-color: #3F3F46;
+}

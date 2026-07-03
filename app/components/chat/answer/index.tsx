@@ -188,10 +188,9 @@ const Answer: FC<IAnswerProps> = ({
             )}
         </div>
         <div className={`${s.answerWrap} max-w-[calc(100%-2.5rem)]`}>
-          <div className='relative text-sm text-gray-900'>
+          <div className='relative text-sm text-gray-900 dark:text-gray-100'>
             <div
-              className={`ml-2 py-3 px-4 rounded-2xl ${workflowProcess && 'min-w-[480px] mobile:min-w-0'}`}
-              style={{ background: 'linear-gradient(180deg, #fff 0%, rgba(255, 255, 255, 0.6) 100%)' }}
+              className={`ml-2 py-3 px-4 rounded-2xl bg-[linear-gradient(180deg,#fff_0%,rgba(255,255,255,0.6)_100%)] dark:bg-[linear-gradient(180deg,#27272A_0%,rgba(39,39,42,0.6)_100%)] ${workflowProcess && 'min-w-[480px] mobile:min-w-0'}`}
             >
               {workflowProcess && (
                 <WorkflowProcess data={workflowProcess} hideInfo />

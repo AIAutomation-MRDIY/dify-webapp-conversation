@@ -18,8 +18,14 @@ const LocaleLayout = async ({
 }) => {
   const locale = await getLocaleOnServer()
   return (
-    <html lang={locale ?? 'en'} className="h-full">
-      <body className="h-full">
+    <html lang={locale ?? 'en'} className="h-full" suppressHydrationWarning>
+      <body className="h-full dark:bg-zinc-900">
+        {/* apply the saved theme before first paint to avoid a light flash */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('pandai-theme')||'system';var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);document.documentElement.style.colorScheme=d?'dark':'light';}catch(e){}})();`,
+          }}
+        />
         <div className="overflow-x-auto">
           <div className="w-screen h-screen min-w-[300px]">
             {children}

@@ -17,8 +17,8 @@ const Question: FC<IQuestionProps> = ({ id, content, imgSrcs }) => {
 
   return (
     <div className='flex items-start justify-end' key={id}>
-      <div className='relative max-w-[80%] pc:max-w-[70%] text-sm text-gray-900'>
-        <div className='py-3 px-4 bg-[#E1EFFE] rounded-2xl'>
+      <div className='relative max-w-[80%] pc:max-w-[70%] text-sm text-gray-900 dark:text-gray-100'>
+        <div className='py-3 px-4 bg-[#E1EFFE] dark:bg-[#27314D] rounded-2xl'>
           {imgSrcs && imgSrcs.length > 0 && (
             <ImageGallery srcs={imgSrcs} />
           )}

@@ -81,8 +81,8 @@ const Welcome: FC<IWelcomeProps> = ({
 
   const renderHeader = () => {
     return (
-      <div className='absolute top-0 left-0 right-0 z-10 flex items-center justify-between border-b border-gray-200/60 mobile:h-12 tablet:h-16 px-8 bg-white/70 backdrop-blur-sm'>
-        <div className='text-gray-900'>{conversationName}</div>
+      <div className='absolute top-0 left-0 right-0 z-10 flex items-center justify-between border-b border-gray-200/60 dark:border-zinc-800/60 mobile:h-12 tablet:h-16 px-8 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-sm'>
+        <div className='text-gray-900 dark:text-gray-100'>{conversationName}</div>
       </div>
     )
   }

@@ -14,7 +14,7 @@ import Toast from '@/app/components/base/toast'
 import ChatImageUploader from '@/app/components/base/image-uploader/chat-image-uploader'
 import ImageList from '@/app/components/base/image-uploader/image-list'
 import { useImageFiles } from '@/app/components/base/image-uploader/hooks'
-import { AttachmentFileList, AttachmentTrigger } from '@/app/components/base/file-uploader-in-attachment/compact'
+import { AttachmentFileList } from '@/app/components/base/file-uploader-in-attachment/compact'
 import { FileContextProvider } from '@/app/components/base/file-uploader-in-attachment/store'
 import type { FileEntity, FileUpload } from '@/app/components/base/file-uploader-in-attachment/types'
 import { getProcessedFiles } from '@/app/components/base/file-uploader-in-attachment/utils'
@@ -179,7 +179,7 @@ const Chat: FC<IChatProps> = ({
       {
         !isHideSendInput && (
           <div
-            className='fixed z-10 bottom-0 left-1/2 transform -translate-x-1/2 pc:ml-[130px] tablet:ml-[110px] mobile:ml-0 pc:w-[794px] tablet:w-[794px] max-w-full mobile:w-full px-3.5 pb-3 mobile:pb-2 bg-gradient-to-t from-[#F2F4F7] via-[#F2F4F7]/95 to-transparent pt-4'
+            className='fixed z-10 bottom-0 left-1/2 transform -translate-x-1/2 pc:ml-[130px] tablet:ml-[110px] mobile:ml-0 pc:w-[794px] tablet:w-[794px] max-w-full mobile:w-full px-3.5 pb-3 mobile:pb-2 bg-gradient-to-t from-[#F2F4F7] via-[#F2F4F7]/95 to-transparent dark:from-[#27272A] dark:via-[#27272A]/95 pt-4'
             style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
           >
             <FileContextProvider
@@ -187,7 +187,7 @@ const Chat: FC<IChatProps> = ({
               onChange={setAttachmentFiles}
             >
               <div className='relative'>
-                <div className='p-2 max-h-[150px] bg-white border border-gray-200 rounded-2xl overflow-y-auto shadow-[0_4px_24px_rgba(0,0,0,0.08)] focus-within:border-primary-300'>
+                <div className='p-2 max-h-[150px] bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-2xl overflow-y-auto shadow-[0_4px_24px_rgba(0,0,0,0.08)] focus-within:border-primary-300 dark:focus-within:border-primary-600'>
                   {
                     visionConfig?.enabled && (
                       <div className='pl-[42px]'>
@@ -204,8 +204,7 @@ const Chat: FC<IChatProps> = ({
                   {fileConfig?.enabled && <AttachmentFileList fileConfig={fileConfig} />}
                   <Textarea
                     className={`
-                      block w-full px-2 py-[7px] leading-5 max-h-none text-base text-gray-700 placeholder:text-gray-400 outline-none appearance-none resize-none
-                      ${fileConfig?.enabled ? 'pr-[84px]' : 'pr-[48px]'}
+                      block w-full px-2 py-[7px] leading-5 max-h-none text-base text-gray-700 dark:text-gray-200 bg-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none appearance-none resize-none pr-[48px]
                       ${visionConfig?.enabled && 'pl-12'}
                     `}
                     value={query}
@@ -229,7 +228,6 @@ const Chat: FC<IChatProps> = ({
                   )
                 }
                 <div className='absolute bottom-[9px] right-3 flex items-center gap-1'>
-                  {fileConfig?.enabled && <AttachmentTrigger fileConfig={fileConfig} />}
                   <Tooltip
                     selector='send-tip'
                     htmlContent={
@@ -249,8 +247,8 @@ const Chat: FC<IChatProps> = ({
                 </div>
               </div>
             </FileContextProvider>
-            <div className='mt-1.5 px-2 text-center text-xs text-gray-400'>
-              AI can make mistakes. Please verify important information — you are responsible for the final output.
+            <div className='mt-1.5 px-2 text-center text-xs text-gray-400 dark:text-gray-500'>
+              AI can make mistakes. Please review and verify all AI-generated content before use.
             </div>
           </div>
         )
