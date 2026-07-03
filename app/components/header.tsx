@@ -11,6 +11,7 @@ import useLarkUser from '@/hooks/use-lark-user'
 
 export interface IHeaderProps {
   title: string
+  conversationName?: string
   isMobile?: boolean
   // show the sidebar toggle even on desktop (used when the sidebar is collapsed)
   showToggle?: boolean
@@ -20,6 +21,7 @@ export interface IHeaderProps {
 
 const Header: FC<IHeaderProps> = ({
   title,
+  conversationName,
   isMobile,
   showToggle,
   onShowSideBar,
@@ -40,11 +42,17 @@ const Header: FC<IHeaderProps> = ({
             <Bars3Icon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
           </button>
         )}
-        {/* desktop (collapsed sidebar): icon + title next to the toggle */}
+        {/* desktop (collapsed sidebar): icon + titles next to the toggle */}
         {!isMobile && (
           <>
             <AppIcon size="small" />
-            <div className="text-sm text-gray-900 dark:text-gray-100 font-semibold truncate">{title}</div>
+            <div className="text-sm text-gray-900 dark:text-gray-100 font-semibold truncate shrink-0">{title}</div>
+            {conversationName && (
+              <>
+                <div className="mx-2 h-4 w-px shrink-0 bg-gray-200 dark:bg-zinc-700" />
+                <div className="text-sm text-gray-500 dark:text-gray-400 truncate">{conversationName}</div>
+              </>
+            )}
           </>
         )}
       </div>
@@ -65,7 +73,7 @@ const Header: FC<IHeaderProps> = ({
             <PencilSquareIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
           </button>
         )}
-        {isMobile && user && (
+        {user && (
           <UserMenu placement="bottom">
             {user.avatar
               ? (

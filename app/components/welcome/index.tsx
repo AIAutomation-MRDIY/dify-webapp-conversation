@@ -24,10 +24,13 @@ export interface IWelcomeProps {
   canEditInputs: boolean
   savedInputs: Record<string, any>
   onInputsChange: (inputs: Record<string, any>) => void
+  // hide the conversation-name bar when the top header already shows it
+  hideConversationNameBar?: boolean
 }
 
 const Welcome: FC<IWelcomeProps> = ({
   conversationName,
+  hideConversationNameBar,
   hasSetInputs,
   isPublicVersion,
   siteInfo,
@@ -106,7 +109,7 @@ const Welcome: FC<IWelcomeProps> = ({
                   onSelect={(i) => { setInputs({ ...inputs, [item.key]: i.value }) }}
                   items={(item.options || []).map(i => ({ name: i, value: i }))}
                   allowSearch={false}
-                  bgClassName='bg-gray-50'
+                  bgClassName='bg-gray-50 dark:bg-zinc-700'
                 />
               )}
             {item.type === 'string' && (
@@ -114,13 +117,13 @@ const Welcome: FC<IWelcomeProps> = ({
                 placeholder={`${item.name}${!item.required ? `(${t('app.variableTable.optional')})` : ''}`}
                 value={inputs?.[item.key] || ''}
                 onChange={(e) => { setInputs({ ...inputs, [item.key]: e.target.value }) }}
-                className={'w-full flex-grow py-2 pl-3 pr-3 box-border rounded-lg bg-gray-50'}
+                className={'w-full flex-grow py-2 pl-3 pr-3 box-border rounded-lg bg-gray-50 dark:bg-zinc-700 dark:text-gray-100 dark:placeholder:text-gray-400'}
                 maxLength={item.max_length || DEFAULT_VALUE_MAX_LEN}
               />
             )}
             {item.type === 'paragraph' && (
               <textarea
-                className="w-full h-[104px] flex-grow py-2 pl-3 pr-3 box-border rounded-lg bg-gray-50"
+                className="w-full h-[104px] flex-grow py-2 pl-3 pr-3 box-border rounded-lg bg-gray-50 dark:bg-zinc-700 dark:text-gray-100 dark:placeholder:text-gray-400"
                 placeholder={`${item.name}${!item.required ? `(${t('app.variableTable.optional')})` : ''}`}
                 value={inputs?.[item.key] || ''}
                 onChange={(e) => { setInputs({ ...inputs, [item.key]: e.target.value }) }}
@@ -328,7 +331,7 @@ const Welcome: FC<IWelcomeProps> = ({
       <TemplateVarPanel
         isFold={isFold}
         header={
-          <div className='flex items-center justify-between text-indigo-600'>
+          <div className='flex items-center justify-between text-indigo-600 dark:text-indigo-300'>
             <PanelTitle
               title={!isFold ? t('app.chat.privatePromptConfigTitle') : t('app.chat.configStatusDes')}
             />
@@ -349,7 +352,7 @@ const Welcome: FC<IWelcomeProps> = ({
 
     return (
       <div
-        className='pt-[88px] mb-5'
+        className={`${hideConversationNameBar ? 'pt-6' : 'pt-[88px]'} mb-5`}
       >
         {isPublicVersion ? renderHasSetInputsPublic() : renderHasSetInputsPrivate()}
       </div>)
@@ -357,7 +360,7 @@ const Welcome: FC<IWelcomeProps> = ({
 
   return (
     <div className='relative mobile:min-h-[48px] tablet:min-h-[64px]'>
-      {hasSetInputs && renderHeader()}
+      {hasSetInputs && !hideConversationNameBar && renderHeader()}
       <div className='mx-auto pc:w-[794px] max-w-full mobile:w-full px-3.5'>
         {/*  Has't set inputs  */}
         {

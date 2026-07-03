@@ -677,6 +677,7 @@ const Main: FC<IMainProps> = () => {
       {(isMobile || isSidebarCollapsed) && (
         <Header
           title={APP_INFO.title}
+          conversationName={(!isMobile && hasSetInputs) ? conversationName : undefined}
           isMobile={isMobile}
           showToggle={!isMobile && isSidebarCollapsed}
           onShowSideBar={isMobile ? showSidebar : expandSidebar}
@@ -699,6 +700,7 @@ const Main: FC<IMainProps> = () => {
         >
           <ConfigSence
             conversationName={conversationName}
+            hideConversationNameBar={!isMobile && isSidebarCollapsed}
             hasSetInputs={hasSetInputs}
             isPublicVersion={isShowPrompt}
             siteInfo={APP_INFO}

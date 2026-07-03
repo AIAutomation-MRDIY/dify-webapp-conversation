@@ -71,10 +71,10 @@ const Select: FC<ISelectProps> = ({
         }
       }}>
       <div className={classNames('relative')}>
-        <div className='group text-gray-800'>
+        <div className='group text-gray-800 dark:text-gray-100'>
           {allowSearch
             ? <Combobox.Input
-              className={`w-full rounded-lg border-0 ${bgClassName} py-1.5 pl-3 pr-10 shadow-sm sm:text-sm sm:leading-6 focus-visible:outline-none focus-visible:bg-gray-200 group-hover:bg-gray-200 cursor-not-allowed`}
+              className={`w-full rounded-lg border-0 ${bgClassName} py-1.5 pl-3 pr-10 shadow-sm sm:text-sm sm:leading-6 focus-visible:outline-none focus-visible:bg-gray-200 group-hover:bg-gray-200 dark:focus-visible:bg-zinc-600 dark:group-hover:bg-zinc-600 cursor-not-allowed`}
               onChange={(event) => {
                 if (!disabled) { setQuery(event.target.value) }
               }}
@@ -84,10 +84,10 @@ const Select: FC<ISelectProps> = ({
               () => {
                 if (!disabled) { setOpen(!open) }
               }
-            } className={`flex items-center h-9 w-full rounded-lg border-0 ${bgClassName} py-1.5 pl-3 pr-10 shadow-sm sm:text-sm sm:leading-6 focus-visible:outline-none focus-visible:bg-gray-200 group-hover:bg-gray-200`}>
+            } className={`flex items-center h-9 w-full rounded-lg border-0 ${bgClassName} py-1.5 pl-3 pr-10 shadow-sm sm:text-sm sm:leading-6 focus-visible:outline-none focus-visible:bg-gray-200 group-hover:bg-gray-200 dark:focus-visible:bg-zinc-600 dark:group-hover:bg-zinc-600`}>
               {selectedItem?.name}
             </Combobox.Button>}
-          <Combobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none group-hover:bg-gray-200" onClick={
+          <Combobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none group-hover:bg-gray-200 dark:group-hover:bg-zinc-600" onClick={
             () => {
               if (!disabled) { setOpen(!open) }
             }
@@ -97,15 +97,15 @@ const Select: FC<ISelectProps> = ({
         </div>
 
         {filteredItems.length > 0 && (
-          <Combobox.Options className="absolute z-10 mt-1 px-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg border-gray-200 border-[0.5px] focus:outline-none sm:text-sm">
+          <Combobox.Options className="absolute z-10 mt-1 px-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-zinc-800 py-1 text-base shadow-lg border-gray-200 dark:border-zinc-700 border-[0.5px] focus:outline-none sm:text-sm">
             {filteredItems.map((item: Item) => (
               <Combobox.Option
                 key={item.value}
                 value={item}
                 className={({ active }: { active: boolean }) =>
                   classNames(
-                    'relative cursor-default select-none py-2 pl-3 pr-9 rounded-lg hover:bg-gray-100 text-gray-700',
-                    active ? 'bg-gray-100' : '',
+                    'relative cursor-default select-none py-2 pl-3 pr-9 rounded-lg hover:bg-gray-100 text-gray-700 dark:text-gray-200 dark:hover:bg-zinc-700',
+                    active ? 'bg-gray-100 dark:bg-zinc-700' : '',
                   )
                 }
               >
@@ -115,7 +115,7 @@ const Select: FC<ISelectProps> = ({
                     {selected && (
                       <span
                         className={classNames(
-                          'absolute inset-y-0 right-0 flex items-center pr-4 text-gray-700',
+                          'absolute inset-y-0 right-0 flex items-center pr-4 text-gray-700 dark:text-gray-200',
                         )}
                       >
                         <CheckIcon className="h-5 w-5" aria-hidden="true" />
