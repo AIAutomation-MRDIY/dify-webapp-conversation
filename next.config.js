@@ -16,7 +16,9 @@ const nextConfig = {
     // https://nextjs.org/docs/api-reference/next.config.js/ignoring-typescript-errors
     ignoreBuildErrors: true,
   },
-  output: 'standalone',
+  // standalone output is only needed for the Docker image; it requires symlink
+  // permissions that fail on Windows, and Vercel does not use it
+  ...(process.env.DOCKER_BUILD === 'true' ? { output: 'standalone' } : {}),
 }
 
 module.exports = nextConfig

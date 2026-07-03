@@ -6,6 +6,7 @@ RUN yarn install --frozen-lockfile
 FROM deps AS builder
 WORKDIR /app
 COPY . .
+ENV DOCKER_BUILD=true
 RUN yarn build
 
 FROM node:22-alpine AS runner

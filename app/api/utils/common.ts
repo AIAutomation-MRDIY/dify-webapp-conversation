@@ -1,24 +1,23 @@
 import type { NextRequest } from 'next/server'
 import { ChatClient } from 'dify-client'
-import { v4 } from 'uuid'
-import { API_KEY, API_URL, APP_ID, APP_INFO } from '@/config'
+import { API_KEY, API_URL, APP_ID } from '@/config'
+import { getSessionFromRequest } from '@/utils/lark-auth'
 
 const userPrefix = `user_${APP_ID}:`
 
-export const getInfo = (request: NextRequest) => {
-  const sessionId = request.cookies.get('session_id')?.value || v4()
-  const user = userPrefix + sessionId
+export const getInfo = async (request: NextRequest) => {
+  const session = await getSessionFromRequest(request)
+  if (!session)
+    throw new Error('Unauthorized: no valid Lark session')
+
+  // Stable per-employee id so each Lark user keeps their own Dify conversations
+  const sessionId = session.sub
+  const user = userPrefix + session.sub
   return {
     sessionId,
     user,
+    larkUser: session,
   }
-}
-
-export const setSession = (sessionId: string) => {
-  if (APP_INFO.disable_session_same_site)
-  { return { 'Set-Cookie': `session_id=${sessionId}; SameSite=None; Secure` } }
-
-  return { 'Set-Cookie': `session_id=${sessionId}` }
 }
 
 export const client = new ChatClient(API_KEY, API_URL || undefined)
