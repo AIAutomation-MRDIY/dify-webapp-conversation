@@ -15,7 +15,6 @@ import { useTranslation } from 'react-i18next'
 import Button from '@/app/components/base/button'
 import StreamdownMarkdown from '@/app/components/base/streamdown-markdown'
 import Toast from '@/app/components/base/toast'
-import WorkflowProcess from '@/app/components/workflow/workflow-process'
 import ImageGallery from '../../base/image-gallery'
 import LoadingAnim from '../loading-anim'
 import s from '../style.module.css'
@@ -84,7 +83,7 @@ const Answer: FC<IAnswerProps> = ({
   suggestionClick = () => { },
   onRegenerate,
 }) => {
-  const { id, content, feedback, agent_thoughts, workflowProcess, suggestedQuestions = [] } = item
+  const { id, content, feedback, agent_thoughts, suggestedQuestions = [] } = item
   const isAgentMode = !!agent_thoughts && agent_thoughts.length > 0
 
   const { t } = useTranslation()
@@ -135,7 +134,7 @@ const Answer: FC<IAnswerProps> = ({
   return (
     <div key={id}>
       <div className="flex items-start">
-        <div className={`${s.answerIcon} w-8 h-8 shrink-0`}>
+        <div className={`${s.answerIcon} w-10 h-10 shrink-0`}>
           {isResponding
             && (
               <div className={s.typeingIcon}>
@@ -143,14 +142,11 @@ const Answer: FC<IAnswerProps> = ({
               </div>
             )}
         </div>
-        <div className={`${s.answerWrap} max-w-[calc(100%-2.5rem)]`}>
+        <div className={`${s.answerWrap} max-w-[calc(100%-3rem)]`}>
           <div className='relative text-sm text-gray-900 dark:text-gray-100'>
             <div
-              className={`ml-2 py-3 px-4 rounded-2xl bg-[linear-gradient(180deg,#fff_0%,rgba(255,255,255,0.6)_100%)] dark:bg-[linear-gradient(180deg,#27272A_0%,rgba(39,39,42,0.6)_100%)] ${workflowProcess && 'min-w-[480px] mobile:min-w-0'}`}
+              className='ml-2 py-3 px-4 rounded-2xl bg-[linear-gradient(180deg,#fff_0%,rgba(255,255,255,0.6)_100%)] dark:bg-[linear-gradient(180deg,#27272A_0%,rgba(39,39,42,0.6)_100%)]'
             >
-              {workflowProcess && (
-                <WorkflowProcess data={workflowProcess} hideInfo />
-              )}
               {(isResponding && (isAgentMode ? (!content && (agent_thoughts || []).filter(item => !!item.thought || !!item.tool).length === 0) : !content))
                 ? (
                   <div className="flex items-center justify-center w-6 h-5">

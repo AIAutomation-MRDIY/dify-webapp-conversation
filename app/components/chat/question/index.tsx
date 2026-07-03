@@ -40,7 +40,7 @@ const Question: FC<IQuestionProps> = ({ id, content, imgSrcs, onEditSend }) => {
     <div className='group flex items-start justify-end' key={id}>
       {/* hover actions: copy + edit */}
       {!isEditing && (
-        <div className='hidden group-hover:flex items-center gap-0.5 mr-2 mt-1 shrink-0 rounded-[10px] border border-gray-200 bg-white p-0.5 shadow-sm dark:border-zinc-700 dark:bg-zinc-800'>
+        <div className='flex opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity items-center gap-0.5 mr-2 mt-1 shrink-0 rounded-[10px] border border-gray-200 bg-white p-0.5 shadow-sm dark:border-zinc-700 dark:bg-zinc-800'>
           <button
             title='Copy'
             onClick={handleCopy}

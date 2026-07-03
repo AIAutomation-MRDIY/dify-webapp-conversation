@@ -28,12 +28,22 @@
   border-radius: 50%;
 }
 
+/* keep the action row in the layout and fade it in on hover,
+   so appearing/disappearing never shifts the chat content */
 .answerWrap .itemOperation {
-  display: none;
+  display: flex;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
 }
 
 .answerWrap:hover .itemOperation {
-  display: flex;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+:global(html.dark) .typeingIcon {
+  background: #3F3F46;
 }
 
 .textArea {
