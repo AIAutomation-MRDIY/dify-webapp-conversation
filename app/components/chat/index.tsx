@@ -150,7 +150,7 @@ const Chat: FC<IChatProps> = ({
   return (
     <div className={cn(!feedbackDisabled && 'px-3.5', 'h-full')}>
       {/* Chat List */}
-      <div className="h-full space-y-[30px]">
+      <div className="h-full space-y-6 pt-4">
         {chatList.map((item) => {
           if (item.isAnswer) {
             const isLast = item.id === chatList[chatList.length - 1].id
@@ -176,8 +176,11 @@ const Chat: FC<IChatProps> = ({
       </div>
       {
         !isHideSendInput && (
-          <div className='fixed z-10 bottom-0 left-1/2 transform -translate-x-1/2 pc:ml-[122px] tablet:ml-[96px] mobile:ml-0 pc:w-[794px] tablet:w-[794px] max-w-full mobile:w-full px-3.5'>
-            <div className='p-[5.5px] max-h-[150px] bg-white border-[1.5px] border-gray-200 rounded-xl overflow-y-auto'>
+          <div
+            className='fixed z-10 bottom-0 left-1/2 transform -translate-x-1/2 pc:ml-[130px] tablet:ml-[110px] mobile:ml-0 pc:w-[794px] tablet:w-[794px] max-w-full mobile:w-full px-3.5 pb-3 mobile:pb-2 bg-gradient-to-t from-white via-white/95 to-transparent pt-4'
+            style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
+          >
+            <div className='p-[5.5px] max-h-[150px] bg-white border border-gray-200 rounded-2xl overflow-y-auto shadow-[0_4px_24px_rgba(0,0,0,0.08)] focus-within:border-primary-300'>
               {
                 visionConfig?.enabled && (
                   <>
