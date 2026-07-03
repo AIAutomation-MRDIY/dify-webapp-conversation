@@ -2,10 +2,13 @@ import React from 'react'
 import type { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
+  ArrowRightOnRectangleIcon,
   ChatBubbleOvalLeftEllipsisIcon,
   PencilSquareIcon,
 } from '@heroicons/react/24/outline'
 import { ChatBubbleOvalLeftEllipsisIcon as ChatBubbleOvalLeftEllipsisSolidIcon } from '@heroicons/react/24/solid'
+import AppIcon from '@/app/components/base/app-icon'
+import useLarkUser from '@/hooks/use-lark-user'
 import type { ConversationItem } from '@/types/app'
 
 function classNames(...classes: any[]) {
@@ -15,6 +18,7 @@ function classNames(...classes: any[]) {
 const MAX_CONVERSATION_LENTH = 20
 
 export interface ISidebarProps {
+  title?: string
   copyRight: string
   currentId: string
   onCurrentIdChange: (id: string) => void
@@ -22,16 +26,28 @@ export interface ISidebarProps {
 }
 
 const Sidebar: FC<ISidebarProps> = ({
+  title,
   copyRight,
   currentId,
   onCurrentIdChange,
   list,
 }) => {
   const { t } = useTranslation()
+  const user = useLarkUser()
+  const initial = (user?.name || user?.email || '?').trim()[0]?.toUpperCase()
+
   return (
     <div
-      className="shrink-0 flex flex-col bg-gray-50 pc:w-[260px] tablet:w-[220px] mobile:w-[280px] border-r border-gray-200 tablet:h-[calc(100vh_-_3.5rem)] mobile:h-full"
+      className="shrink-0 flex flex-col bg-gray-50 pc:w-[260px] tablet:w-[220px] mobile:w-[280px] border-r border-gray-200 mobile:h-full tablet:h-screen"
     >
+      {/* app info */}
+      {title && (
+        <div className="flex items-center gap-2.5 px-4 pt-4 pb-2">
+          <AppIcon size="small" />
+          <div className="text-sm text-gray-900 font-semibold truncate">{title}</div>
+        </div>
+      )}
+
       {list.length < MAX_CONVERSATION_LENTH && (
         <div className="flex flex-shrink-0 p-3">
           <button
@@ -74,7 +90,41 @@ const Sidebar: FC<ISidebarProps> = ({
           )
         })}
       </nav>
-      <div className="flex flex-shrink-0 px-4 py-3 border-t border-gray-200">
+
+      {/* user info */}
+      {user && (
+        <div className="flex items-center gap-2.5 px-3 py-3 border-t border-gray-200">
+          {user.avatar
+            ? (
+              <img
+                src={user.avatar}
+                alt={user.name || 'avatar'}
+                className="h-8 w-8 shrink-0 rounded-full object-cover bg-gray-100"
+                referrerPolicy="no-referrer"
+              />
+            )
+            : (
+              <div className="flex items-center justify-center h-8 w-8 shrink-0 rounded-full bg-primary-600 text-white text-sm font-medium">
+                {initial}
+              </div>
+            )}
+          <div className="min-w-0 flex-1">
+            <div className="text-sm text-gray-900 font-medium truncate">{user.name || user.email}</div>
+            {user.name && user.email && (
+              <div className="text-xs text-gray-400 truncate">{user.email}</div>
+            )}
+          </div>
+          <a
+            href="/api/auth/logout"
+            title="Sign out"
+            className="flex items-center justify-center h-8 w-8 shrink-0 rounded-lg text-gray-400 hover:bg-gray-200/60 hover:text-gray-700"
+          >
+            <ArrowRightOnRectangleIcon className="h-4 w-4" />
+          </a>
+        </div>
+      )}
+
+      <div className="flex flex-shrink-0 px-4 pb-3">
         <div className="text-gray-400 font-normal text-xs">© {copyRight} {(new Date()).getFullYear()}</div>
       </div>
     </div>

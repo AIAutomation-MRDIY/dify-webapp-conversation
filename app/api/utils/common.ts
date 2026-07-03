@@ -1,20 +1,21 @@
 import type { NextRequest } from 'next/server'
 import { ChatClient } from 'dify-client'
-import { API_KEY, API_URL, APP_ID } from '@/config'
+import { API_KEY, API_URL } from '@/config'
 import { getSessionFromRequest } from '@/utils/lark-auth'
-
-const userPrefix = `user_${APP_ID}:`
 
 export const getInfo = async (request: NextRequest) => {
   const session = await getSessionFromRequest(request)
   if (!session)
     throw new Error('Unauthorized: no valid Lark session')
 
-  // Stable per-employee id so each Lark user keeps their own Dify conversations
-  const sessionId = session.sub
-  const user = userPrefix + session.sub
+  // Human-readable id shown in Dify's Logs & Annotations. A short open_id
+  // suffix keeps it unique even when two employees share the same name.
+  const user = session.name
+    ? `${session.name} (${session.sub.slice(-6)})`
+    : (session.email || session.sub)
+
   return {
-    sessionId,
+    sessionId: session.sub,
     user,
     larkUser: session,
   }

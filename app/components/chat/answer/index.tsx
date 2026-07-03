@@ -189,7 +189,10 @@ const Answer: FC<IAnswerProps> = ({
         </div>
         <div className={`${s.answerWrap} max-w-[calc(100%-2.5rem)]`}>
           <div className='relative text-sm text-gray-900'>
-            <div className={`ml-2 py-3 px-4 bg-gray-50 ring-1 ring-gray-100 rounded-2xl rounded-tl-md ${workflowProcess && 'min-w-[480px] mobile:min-w-0'}`}>
+            <div
+              className={`ml-2 py-3 px-4 rounded-2xl ${workflowProcess && 'min-w-[480px] mobile:min-w-0'}`}
+              style={{ background: 'linear-gradient(180deg, #fff 0%, rgba(255, 255, 255, 0.6) 100%)' }}
+            >
               {workflowProcess && (
                 <WorkflowProcess data={workflowProcess} hideInfo />
               )}

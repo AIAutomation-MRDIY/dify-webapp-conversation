@@ -177,7 +177,7 @@ const Chat: FC<IChatProps> = ({
       {
         !isHideSendInput && (
           <div
-            className='fixed z-10 bottom-0 left-1/2 transform -translate-x-1/2 pc:ml-[130px] tablet:ml-[110px] mobile:ml-0 pc:w-[794px] tablet:w-[794px] max-w-full mobile:w-full px-3.5 pb-3 mobile:pb-2 bg-gradient-to-t from-white via-white/95 to-transparent pt-4'
+            className='fixed z-10 bottom-0 left-1/2 transform -translate-x-1/2 pc:ml-[130px] tablet:ml-[110px] mobile:ml-0 pc:w-[794px] tablet:w-[794px] max-w-full mobile:w-full px-3.5 pb-3 mobile:pb-2 bg-gradient-to-t from-[#F2F4F7] via-[#F2F4F7]/95 to-transparent pt-4'
             style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
           >
             <div className='p-[5.5px] max-h-[150px] bg-white border border-gray-200 rounded-2xl overflow-y-auto shadow-[0_4px_24px_rgba(0,0,0,0.08)] focus-within:border-primary-300'>

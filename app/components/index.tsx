@@ -640,6 +640,7 @@ const Main: FC<IMainProps> = () => {
     if (!APP_ID || !APP_INFO || !promptConfig) { return null }
     return (
       <Sidebar
+        title={APP_INFO.title}
         list={conversationList}
         onCurrentIdChange={handleConversationIdChange}
         currentId={currConversationId}
@@ -654,12 +655,14 @@ const Main: FC<IMainProps> = () => {
 
   return (
     <div className='bg-white'>
-      <Header
-        title={APP_INFO.title}
-        isMobile={isMobile}
-        onShowSideBar={showSidebar}
-        onCreateNewChat={() => handleConversationIdChange('-1')}
-      />
+      {isMobile && (
+        <Header
+          title={APP_INFO.title}
+          isMobile={isMobile}
+          onShowSideBar={showSidebar}
+          onCreateNewChat={() => handleConversationIdChange('-1')}
+        />
+      )}
       <div className="flex bg-white overflow-hidden">
         {/* sidebar */}
         {!isMobile && renderSidebar()}
@@ -671,7 +674,10 @@ const Main: FC<IMainProps> = () => {
           </div>
         )}
         {/* main */}
-        <div className='flex-grow flex flex-col h-[calc(100vh_-_3.5rem)] overflow-y-auto'>
+        <div
+          className={`flex-grow flex flex-col overflow-y-auto ${isMobile ? 'h-[calc(100vh_-_3.5rem)]' : 'h-screen'}`}
+          style={{ background: 'linear-gradient(180deg, rgba(249, 250, 251, 0.9) 0%, rgba(242, 244, 247, 0.9) 90.48%)' }}
+        >
           <ConfigSence
             conversationName={conversationName}
             hasSetInputs={hasSetInputs}
