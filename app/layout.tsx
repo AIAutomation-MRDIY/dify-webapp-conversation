@@ -1,7 +1,15 @@
+import type { Metadata } from 'next'
 import { getLocaleOnServer } from '@/i18n/server'
 
 import './styles/globals.css'
 import './styles/markdown.scss'
+
+export const metadata: Metadata = {
+  icons: {
+    // MR.DIY hammer badge
+    icon: '/mrdiy-hammer.png',
+  },
+}
 
 const LocaleLayout = async ({
   children,

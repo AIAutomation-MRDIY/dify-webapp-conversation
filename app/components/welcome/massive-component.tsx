@@ -71,5 +71,6 @@ export const EditBtn = ({ className, onClick }: { className?: string, onClick: (
 }
 
 export const FootLogo = () => (
-  <div className={s.logo} />
+  // MR.DIY wordmark
+  <img src="/mrdiy-wordmark.png" alt="MR.DIY" className='h-5 w-auto' />
 )

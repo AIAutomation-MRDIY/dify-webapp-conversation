@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import {
   ArrowRightOnRectangleIcon,
   ChatBubbleOvalLeftEllipsisIcon,
+  ChevronDoubleLeftIcon,
   PencilSquareIcon,
 } from '@heroicons/react/24/outline'
 import { ChatBubbleOvalLeftEllipsisIcon as ChatBubbleOvalLeftEllipsisSolidIcon } from '@heroicons/react/24/solid'
@@ -23,14 +24,15 @@ export interface ISidebarProps {
   currentId: string
   onCurrentIdChange: (id: string) => void
   list: ConversationItem[]
+  onHide?: () => void
 }
 
 const Sidebar: FC<ISidebarProps> = ({
   title,
-  copyRight,
   currentId,
   onCurrentIdChange,
   list,
+  onHide,
 }) => {
   const { t } = useTranslation()
   const user = useLarkUser()
@@ -44,7 +46,16 @@ const Sidebar: FC<ISidebarProps> = ({
       {title && (
         <div className="flex items-center gap-2.5 px-4 pt-4 pb-2">
           <AppIcon size="small" />
-          <div className="text-sm text-gray-900 font-semibold truncate">{title}</div>
+          <div className="flex-1 min-w-0 text-sm text-gray-900 font-semibold truncate">{title}</div>
+          {onHide && (
+            <button
+              title="Hide sidebar"
+              onClick={onHide}
+              className="flex items-center justify-center h-8 w-8 shrink-0 rounded-lg text-gray-400 hover:bg-gray-200/60 hover:text-gray-700"
+            >
+              <ChevronDoubleLeftIcon className="h-4 w-4" />
+            </button>
+          )}
         </div>
       )}
 
@@ -125,7 +136,9 @@ const Sidebar: FC<ISidebarProps> = ({
       )}
 
       <div className="flex flex-shrink-0 px-4 pb-3">
-        <div className="text-gray-400 font-normal text-xs">© {copyRight} {(new Date()).getFullYear()}</div>
+        <div className="text-gray-400 font-normal text-[10px] leading-4 uppercase">
+          Copyright © {(new Date()).getFullYear()} MR D.I.Y. GROUP (M) BERHAD (CO.NO. : 201001034084 (918007-M)) All Rights Reserved.
+        </div>
       </div>
     </div>
   )

@@ -1,4 +1,6 @@
+'use client'
 import type { FC } from 'react'
+import { useState } from 'react'
 import classNames from 'classnames'
 import style from './style.module.css'
 
@@ -16,19 +18,28 @@ const AppIcon: FC<AppIconProps> = ({
   background,
   className,
 }) => {
+  const [imgFailed, setImgFailed] = useState(false)
+
   return (
     <span
       className={classNames(
         style.appIcon,
         size !== 'medium' && style[size],
         rounded && style.rounded,
+        'overflow-hidden',
         className ?? '',
       )}
       style={{
         background,
       }}
     >
-      🤖
+      {/* MR.DIY panda mascot cropped to the head; hammer badge as fallback */}
+      <img
+        src={imgFailed ? '/mrdiy-hammer.png' : '/mrdiy-panda.png'}
+        alt="PandAI"
+        className="w-full h-full object-cover object-top"
+        onError={() => setImgFailed(true)}
+      />
     </span>
   )
 }

@@ -1,6 +1,7 @@
 'use client'
 import type { FC } from 'react'
 import React, { useEffect, useRef, useState } from 'react'
+import { Bars3Icon } from '@heroicons/react/24/outline'
 import { useTranslation } from 'react-i18next'
 import produce, { setAutoFreeze } from 'immer'
 import { useBoolean, useGetState } from 'ahooks'
@@ -42,6 +43,8 @@ const Main: FC<IMainProps> = () => {
   const [inited, setInited] = useState<boolean>(false)
   // in mobile, show sidebar by click button
   const [isShowSidebar, { setTrue: showSidebar, setFalse: hideSidebar }] = useBoolean(false)
+  // in desktop, allow collapsing the sidebar
+  const [isSidebarCollapsed, { setTrue: collapseSidebar, setFalse: expandSidebar }] = useBoolean(false)
   const [visionConfig, setVisionConfig] = useState<VisionSettings | undefined>({
     enabled: false,
     number_limits: 2,
@@ -184,8 +187,8 @@ const Main: FC<IMainProps> = () => {
       }, 50)
     }
   }, [chatList, currConversationId])
-  // user can not edit inputs if user had send message
-  const canEditInputs = !chatList.some(item => item.isAnswer === false) && isNewConversation
+  // inputs stay editable; edited values apply to the next message / new chat
+  const canEditInputs = true
   const createNewChat = () => {
     // if new chat is already exist, do not create new chat
     if (conversationList.some(item => item.id === '-1')) { return }
@@ -645,6 +648,7 @@ const Main: FC<IMainProps> = () => {
         onCurrentIdChange={handleConversationIdChange}
         currentId={currConversationId}
         copyRight={APP_INFO.copyright || APP_INFO.title}
+        onHide={isMobile ? hideSidebar : collapseSidebar}
       />
     )
   }
@@ -665,7 +669,16 @@ const Main: FC<IMainProps> = () => {
       )}
       <div className="flex bg-white overflow-hidden">
         {/* sidebar */}
-        {!isMobile && renderSidebar()}
+        {!isMobile && !isSidebarCollapsed && renderSidebar()}
+        {!isMobile && isSidebarCollapsed && (
+          <button
+            title="Show sidebar"
+            onClick={expandSidebar}
+            className='fixed top-3 left-3 z-30 flex items-center justify-center h-9 w-9 rounded-lg bg-white shadow-md ring-1 ring-gray-200 text-gray-500 hover:text-gray-800'
+          >
+            <Bars3Icon className='h-5 w-5' />
+          </button>
+        )}
         {isMobile && isShowSidebar && (
           <div className='fixed inset-0 z-50 bg-gray-900/40 backdrop-blur-[2px]' onClick={hideSidebar} >
             <div className='inline-block h-full shadow-xl' onClick={e => e.stopPropagation()}>

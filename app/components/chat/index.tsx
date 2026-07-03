@@ -241,6 +241,9 @@ const Chat: FC<IChatProps> = ({
                 </Tooltip>
               </div>
             </div>
+            <div className='mt-1.5 px-2 text-center text-xs text-gray-400'>
+              AI can make mistakes. Please verify important information — you are responsible for the final output.
+            </div>
           </div>
         )
       }
