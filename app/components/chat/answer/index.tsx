@@ -143,10 +143,12 @@ const Answer: FC<IAnswerProps> = ({
             )}
         </div>
         <div className={`${s.answerWrap} max-w-[calc(100%-3rem)]`}>
-          <div className='relative text-sm text-gray-900 dark:text-gray-100'>
-            <div
-              className='ml-2 py-3 px-4 rounded-2xl bg-[linear-gradient(180deg,#fff_0%,rgba(255,255,255,0.6)_100%)] dark:bg-[linear-gradient(180deg,#27272A_0%,rgba(39,39,42,0.6)_100%)]'
-            >
+          {/* bubble first; actions sit to its right and wrap below when space is tight */}
+          <div className='flex flex-wrap content-start items-end gap-1'>
+            <div className='relative min-w-0 text-sm text-gray-900 dark:text-gray-100'>
+              <div
+                className='ml-2 py-3 px-4 rounded-2xl break-words bg-[linear-gradient(180deg,#fff_0%,rgba(255,255,255,0.6)_100%)] dark:bg-[linear-gradient(180deg,#27272A_0%,rgba(39,39,42,0.6)_100%)]'
+              >
               {(isResponding && (isAgentMode ? (!content && (agent_thoughts || []).filter(item => !!item.thought || !!item.tool).length === 0) : !content))
                 ? (
                   <div className="flex items-center justify-center w-6 h-5">
@@ -171,9 +173,9 @@ const Answer: FC<IAnswerProps> = ({
               )}
             </div>
           </div>
-          {/* message actions: like, dislike, copy, regenerate */}
-          {!feedbackDisabled && !item.feedbackDisabled && !isResponding && (
-            <div className={`${s.itemOperation} mt-1 ml-2 w-fit items-center gap-0.5 rounded-[10px] border border-gray-200 bg-white p-0.5 shadow-sm dark:border-zinc-700 dark:bg-zinc-800`}>
+            {/* message actions: like, dislike, copy, regenerate */}
+            {!feedbackDisabled && !item.feedbackDisabled && !isResponding && (
+              <div className={`${s.itemOperation} w-fit shrink-0 items-center gap-0.5 rounded-[10px] border border-gray-200 bg-white p-0.5 shadow-sm dark:border-zinc-700 dark:bg-zinc-800`}>
               <OpBtn
                 title={t('common.operation.like') as string}
                 active={feedback?.rating === 'like'}
@@ -191,13 +193,14 @@ const Answer: FC<IAnswerProps> = ({
               <OpBtn title='Copy' onClick={handleCopy}>
                 <ClipboardDocumentIcon className='w-4 h-4' />
               </OpBtn>
-              {onRegenerate && (
-                <OpBtn title='Regenerate' onClick={onRegenerate}>
-                  <ArrowPathIcon className='w-4 h-4' />
-                </OpBtn>
-              )}
-            </div>
-          )}
+                {onRegenerate && (
+                  <OpBtn title='Regenerate' onClick={onRegenerate}>
+                    <ArrowPathIcon className='w-4 h-4' />
+                  </OpBtn>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
