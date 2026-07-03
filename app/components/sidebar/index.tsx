@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import type { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ArrowRightOnRectangleIcon,
   ChatBubbleOvalLeftEllipsisIcon,
   ChevronDoubleLeftIcon,
+  PencilIcon,
   PencilSquareIcon,
 } from '@heroicons/react/24/outline'
 import { ChatBubbleOvalLeftEllipsisIcon as ChatBubbleOvalLeftEllipsisSolidIcon } from '@heroicons/react/24/solid'
@@ -25,6 +26,7 @@ export interface ISidebarProps {
   onCurrentIdChange: (id: string) => void
   list: ConversationItem[]
   onHide?: () => void
+  onRenameConversation?: (id: string, name: string) => void
 }
 
 const Sidebar: FC<ISidebarProps> = ({
@@ -33,10 +35,26 @@ const Sidebar: FC<ISidebarProps> = ({
   onCurrentIdChange,
   list,
   onHide,
+  onRenameConversation,
 }) => {
   const { t } = useTranslation()
   const user = useLarkUser()
   const initial = (user?.name || user?.email || '?').trim()[0]?.toUpperCase()
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingName, setEditingName] = useState('')
+
+  const startEditing = (id: string, name: string) => {
+    setEditingId(id)
+    setEditingName(name)
+  }
+
+  const commitEditing = () => {
+    const newName = editingName.trim()
+    const item = list.find(item => item.id === editingId)
+    if (editingId && item && newName && newName !== item.name)
+      onRenameConversation?.(editingId, newName)
+    setEditingId(null)
+  }
 
   return (
     <div
@@ -75,9 +93,10 @@ const Sidebar: FC<ISidebarProps> = ({
           const isCurrent = item.id === currentId
           const ItemIcon
             = isCurrent ? ChatBubbleOvalLeftEllipsisSolidIcon : ChatBubbleOvalLeftEllipsisIcon
+          const isEditing = editingId === item.id
           return (
             <div
-              onClick={() => onCurrentIdChange(item.id)}
+              onClick={() => { if (!isEditing) { onCurrentIdChange(item.id) } }}
               key={item.id}
               title={item.name}
               className={classNames(
@@ -96,7 +115,40 @@ const Sidebar: FC<ISidebarProps> = ({
                 )}
                 aria-hidden="true"
               />
-              <span className="truncate">{item.name}</span>
+              {isEditing
+                ? (
+                  <input
+                    autoFocus
+                    value={editingName}
+                    onChange={e => setEditingName(e.target.value)}
+                    onBlur={commitEditing}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter')
+                        commitEditing()
+                      if (e.key === 'Escape')
+                        setEditingId(null)
+                    }}
+                    onClick={e => e.stopPropagation()}
+                    className="w-full min-w-0 rounded border border-primary-300 bg-white px-1 py-0.5 text-sm font-normal outline-none"
+                  />
+                )
+                : (
+                  <>
+                    <span className="flex-1 truncate">{item.name}</span>
+                    {item.id !== '-1' && onRenameConversation && (
+                      <button
+                        title="Rename"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          startEditing(item.id, item.name)
+                        }}
+                        className="hidden group-hover:flex items-center justify-center h-6 w-6 shrink-0 ml-1 rounded text-gray-400 hover:bg-gray-200 hover:text-gray-700"
+                      >
+                        <PencilIcon className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </>
+                )}
             </div>
           )
         })}

@@ -1,7 +1,6 @@
 'use client'
 import type { FC } from 'react'
 import React, { useEffect, useRef, useState } from 'react'
-import { Bars3Icon } from '@heroicons/react/24/outline'
 import { useTranslation } from 'react-i18next'
 import produce, { setAutoFreeze } from 'immer'
 import { useBoolean, useGetState } from 'ahooks'
@@ -10,7 +9,7 @@ import Toast from '@/app/components/base/toast'
 import Sidebar from '@/app/components/sidebar'
 import ConfigSence from '@/app/components/config-scence'
 import Header from '@/app/components/header'
-import { fetchAppParams, fetchChatList, fetchConversations, generationConversationName, sendChatMessage, updateFeedback } from '@/service'
+import { fetchAppParams, fetchChatList, fetchConversations, generationConversationName, renameConversation, sendChatMessage, updateFeedback } from '@/service'
 import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import type { FileUpload } from '@/app/components/base/file-uploader-in-attachment/types'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
@@ -639,6 +638,21 @@ const Main: FC<IMainProps> = () => {
     notify({ type: 'success', message: t('common.api.success') })
   }
 
+  const handleRenameConversation = async (id: string, newName: string) => {
+    try {
+      await renameConversation(id, newName)
+      setConversationList(produce(conversationList, (draft) => {
+        const item = draft.find(item => item.id === id)
+        if (item)
+          item.name = newName
+      }))
+      notify({ type: 'success', message: t('common.api.success') })
+    }
+    catch (e: any) {
+      notify({ type: 'error', message: e.message })
+    }
+  }
+
   const renderSidebar = () => {
     if (!APP_ID || !APP_INFO || !promptConfig) { return null }
     return (
@@ -649,6 +663,7 @@ const Main: FC<IMainProps> = () => {
         currentId={currConversationId}
         copyRight={APP_INFO.copyright || APP_INFO.title}
         onHide={isMobile ? hideSidebar : collapseSidebar}
+        onRenameConversation={handleRenameConversation}
       />
     )
   }
@@ -659,26 +674,18 @@ const Main: FC<IMainProps> = () => {
 
   return (
     <div className='bg-white'>
-      {isMobile && (
+      {(isMobile || isSidebarCollapsed) && (
         <Header
           title={APP_INFO.title}
           isMobile={isMobile}
-          onShowSideBar={showSidebar}
+          showToggle={!isMobile && isSidebarCollapsed}
+          onShowSideBar={isMobile ? showSidebar : expandSidebar}
           onCreateNewChat={() => handleConversationIdChange('-1')}
         />
       )}
       <div className="flex bg-white overflow-hidden">
         {/* sidebar */}
         {!isMobile && !isSidebarCollapsed && renderSidebar()}
-        {!isMobile && isSidebarCollapsed && (
-          <button
-            title="Show sidebar"
-            onClick={expandSidebar}
-            className='fixed top-3 left-3 z-30 flex items-center justify-center h-9 w-9 rounded-lg bg-white shadow-md ring-1 ring-gray-200 text-gray-500 hover:text-gray-800'
-          >
-            <Bars3Icon className='h-5 w-5' />
-          </button>
-        )}
         {isMobile && isShowSidebar && (
           <div className='fixed inset-0 z-50 bg-gray-900/40 backdrop-blur-[2px]' onClick={hideSidebar} >
             <div className='inline-block h-full shadow-xl' onClick={e => e.stopPropagation()}>
@@ -688,7 +695,7 @@ const Main: FC<IMainProps> = () => {
         )}
         {/* main */}
         <div
-          className={`flex-grow flex flex-col overflow-y-auto ${isMobile ? 'h-[calc(100vh_-_3.5rem)]' : 'h-screen'}`}
+          className={`flex-grow flex flex-col overflow-y-auto ${(isMobile || isSidebarCollapsed) ? 'h-[calc(100vh_-_3.5rem)]' : 'h-screen'}`}
           style={{ background: 'linear-gradient(180deg, rgba(249, 250, 251, 0.9) 0%, rgba(242, 244, 247, 0.9) 90.48%)' }}
         >
           <ConfigSence

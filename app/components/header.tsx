@@ -11,6 +11,8 @@ import useLarkUser from '@/hooks/use-lark-user'
 export interface IHeaderProps {
   title: string
   isMobile?: boolean
+  // show the sidebar toggle even on desktop (used when the sidebar is collapsed)
+  showToggle?: boolean
   onShowSideBar?: () => void
   onCreateNewChat?: () => void
 }
@@ -18,6 +20,7 @@ export interface IHeaderProps {
 const Header: FC<IHeaderProps> = ({
   title,
   isMobile,
+  showToggle,
   onShowSideBar,
   onCreateNewChat,
 }) => {
@@ -27,7 +30,7 @@ const Header: FC<IHeaderProps> = ({
   return (
     <div className="shrink-0 flex items-center justify-between h-14 px-3 bg-white border-b border-gray-200">
       <div className="flex items-center gap-2 min-w-0">
-        {isMobile && (
+        {(isMobile || showToggle) && (
           <button
             className="flex items-center justify-center h-9 w-9 shrink-0 rounded-lg hover:bg-gray-100"
             onClick={() => onShowSideBar?.()}
