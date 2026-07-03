@@ -158,7 +158,7 @@ const Sidebar: FC<ISidebarProps> = ({
       {/* user info */}
       {user && (
         <div className="flex items-center gap-1 px-3 py-3 border-t border-gray-200 dark:border-zinc-800">
-          <UserMenu placement="top">
+          <UserMenu placement="top" className="min-w-0 flex-1">
             <div className="flex items-center gap-2.5 rounded-lg px-1 py-1 -mx-1 hover:bg-gray-200/60 dark:hover:bg-zinc-800/60">
               {user.avatar
                 ? (

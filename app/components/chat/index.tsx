@@ -152,13 +152,25 @@ const Chat: FC<IChatProps> = ({
     handleSend()
   }
 
+  // send a message directly (used by question edit-resend and answer regenerate)
+  const sendDirect = (message: string) => {
+    const text = message.trim()
+    if (!text)
+      return
+    if (checkCanSend && !checkCanSend())
+      return
+    onSend(text, [])
+  }
+
   return (
     <div className={cn(!feedbackDisabled && 'px-3.5', 'h-full')}>
       {/* Chat List */}
       <div className="h-full space-y-6 pt-4">
-        {chatList.map((item) => {
+        {chatList.map((item, index) => {
           if (item.isAnswer) {
             const isLast = item.id === chatList[chatList.length - 1].id
+            // the user question this answer replies to (for regenerate)
+            const prevQuestion = chatList.slice(0, index).reverse().find(i => !i.isAnswer)
             return <Answer
               key={item.id}
               item={item}
@@ -166,6 +178,7 @@ const Chat: FC<IChatProps> = ({
               onFeedback={onFeedback}
               isResponding={isResponding && isLast}
               suggestionClick={suggestionClick}
+              onRegenerate={prevQuestion ? () => sendDirect(prevQuestion.content) : undefined}
             />
           }
           return (
@@ -175,6 +188,7 @@ const Chat: FC<IChatProps> = ({
               content={item.content}
               useCurrentUserAvatar={useCurrentUserAvatar}
               imgSrcs={(item.message_files && item.message_files?.length > 0) ? item.message_files.map(item => item.url) : []}
+              onEditSend={sendDirect}
             />
           )
         })}

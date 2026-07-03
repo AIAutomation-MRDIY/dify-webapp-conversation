@@ -59,10 +59,11 @@ const AboutModal: FC<{ onClose: () => void }> = ({ onClose }) => (
 export interface UserMenuProps {
   children: ReactNode
   placement?: 'top' | 'bottom'
+  className?: string
 }
 
 // Wraps a trigger (user avatar/name); clicking it opens the settings menu
-const UserMenu: FC<UserMenuProps> = ({ children, placement = 'top' }) => {
+const UserMenu: FC<UserMenuProps> = ({ children, placement = 'top', className }) => {
   const [open, setOpen] = useState(false)
   const [showAbout, setShowAbout] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -78,7 +79,7 @@ const UserMenu: FC<UserMenuProps> = ({ children, placement = 'top' }) => {
   }, [])
 
   return (
-    <div className='relative min-w-0 flex-1' ref={containerRef}>
+    <div className={`relative ${className || ''}`} ref={containerRef}>
       <div className='cursor-pointer' onClick={() => setOpen(v => !v)}>
         {children}
       </div>

@@ -1,30 +1,39 @@
 'use client'
 import type { FC } from 'react'
 import type { FeedbackFunc } from '../type'
-import type { ChatItem, MessageRating, VisionFile } from '@/types/app'
+import type { ChatItem, VisionFile } from '@/types/app'
 import type { Emoji } from '@/types/tools'
-import { HandThumbDownIcon, HandThumbUpIcon } from '@heroicons/react/24/outline'
+import {
+  ArrowPathIcon,
+  ClipboardDocumentIcon,
+  HandThumbDownIcon,
+  HandThumbUpIcon,
+} from '@heroicons/react/24/outline'
+import copy from 'copy-to-clipboard'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import Button from '@/app/components/base/button'
 import StreamdownMarkdown from '@/app/components/base/streamdown-markdown'
-import Tooltip from '@/app/components/base/tooltip'
+import Toast from '@/app/components/base/toast'
 import WorkflowProcess from '@/app/components/workflow/workflow-process'
-import { randomString } from '@/utils/string'
 import ImageGallery from '../../base/image-gallery'
 import LoadingAnim from '../loading-anim'
 import s from '../style.module.css'
 import Thought from '../thought'
 
-function OperationBtn({ innerContent, onClick, className }: { innerContent: React.ReactNode, onClick?: () => void, className?: string }) {
+function OpBtn({ children, onClick, title, active }: { children: React.ReactNode, onClick?: () => void, title?: string, active?: boolean }) {
   return (
-    <div
-      className={`relative box-border flex items-center justify-center h-7 w-7 p-0.5 rounded-lg bg-white cursor-pointer text-gray-500 hover:text-gray-800 ${className ?? ''}`}
-      style={{ boxShadow: '0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -2px rgba(0, 0, 0, 0.05)' }}
-      onClick={onClick && onClick}
+    <button
+      title={title}
+      onClick={onClick}
+      className={`flex h-7 w-7 items-center justify-center rounded-lg ${
+        active
+          ? 'text-primary-600 bg-primary-50 dark:text-primary-300 dark:bg-primary-600/20'
+          : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-zinc-700 dark:hover:text-gray-200'
+      }`}
     >
-      {innerContent}
-    </div>
+      {children}
+    </button>
   )
 }
 
@@ -55,14 +64,6 @@ export const EditIconSolid: FC<{ className?: string }> = ({ className }) => {
   )
 }
 
-const IconWrapper: FC<{ children: React.ReactNode | string }> = ({ children }) => {
-  return (
-    <div className="rounded-lg h-6 w-6 flex items-center justify-center hover:bg-gray-100">
-      {children}
-    </div>
-  )
-}
-
 interface IAnswerProps {
   item: ChatItem
   feedbackDisabled: boolean
@@ -70,6 +71,7 @@ interface IAnswerProps {
   isResponding?: boolean
   allToolIcons?: Record<string, string | Emoji>
   suggestionClick?: (suggestion: string) => void
+  onRegenerate?: () => void
 }
 
 // The component needs to maintain its own state to control whether to display input component
@@ -80,70 +82,24 @@ const Answer: FC<IAnswerProps> = ({
   isResponding,
   allToolIcons,
   suggestionClick = () => { },
+  onRegenerate,
 }) => {
   const { id, content, feedback, agent_thoughts, workflowProcess, suggestedQuestions = [] } = item
   const isAgentMode = !!agent_thoughts && agent_thoughts.length > 0
 
   const { t } = useTranslation()
 
-  /**
-   * Render feedback results (distinguish between users and administrators)
-   * User reviews cannot be cancelled in Console
-   * @param rating feedback result
-   * @param isUserFeedback Whether it is user's feedback
-   * @returns comp
-   */
-  const renderFeedbackRating = (rating: MessageRating | undefined) => {
-    if (!rating) { return null }
+  const copyText = isAgentMode
+    ? (agent_thoughts || []).map(thought => thought.thought).filter(Boolean).join('\n') || content
+    : content
 
-    const isLike = rating === 'like'
-    const ratingIconClassname = isLike ? 'text-primary-600 bg-primary-100 hover:bg-primary-200' : 'text-red-600 bg-red-100 hover:bg-red-200'
-    // The tooltip is always displayed, but the content is different for different scenarios.
-    return (
-      <Tooltip
-        selector={`user-feedback-${randomString(16)}`}
-        content={isLike ? '取消赞同' : '取消反对'}
-      >
-        <div
-          className="relative box-border flex items-center justify-center h-7 w-7 p-0.5 rounded-lg bg-white cursor-pointer text-gray-500 hover:text-gray-800"
-          style={{ boxShadow: '0px 4px 6px -1px rgba(0, 0, 0, 0.1), 0px 2px 4px -2px rgba(0, 0, 0, 0.05)' }}
-          onClick={async () => {
-            await onFeedback?.(id, { rating: null })
-          }}
-        >
-          <div className={`${ratingIconClassname} rounded-lg h-6 w-6 flex items-center justify-center`}>
-            <RatingIcon isLike={isLike} />
-          </div>
-        </div>
-      </Tooltip>
-    )
+  const handleCopy = () => {
+    copy(copyText)
+    Toast.notify({ type: 'success', message: 'Copied' })
   }
 
-  /**
-   * Different scenarios have different operation items.
-   * @returns comp
-   */
-  const renderItemOperation = () => {
-    const userOperation = () => {
-      return feedback?.rating
-        ? null
-        : (
-          <div className="flex gap-1">
-            <Tooltip selector={`user-feedback-${randomString(16)}`} content={t('common.operation.like') as string}>
-              {OperationBtn({ innerContent: <IconWrapper><RatingIcon isLike={true} /></IconWrapper>, onClick: () => onFeedback?.(id, { rating: 'like' }) })}
-            </Tooltip>
-            <Tooltip selector={`user-feedback-${randomString(16)}`} content={t('common.operation.dislike') as string}>
-              {OperationBtn({ innerContent: <IconWrapper><RatingIcon isLike={false} /></IconWrapper>, onClick: () => onFeedback?.(id, { rating: 'dislike' }) })}
-            </Tooltip>
-          </div>
-        )
-    }
-
-    return (
-      <div className={`${s.itemOperation} flex gap-2`}>
-        {userOperation()}
-      </div>
-    )
+  const toggleRating = (rating: 'like' | 'dislike') => {
+    onFeedback?.(id, { rating: feedback?.rating === rating ? null : rating })
   }
 
   const getImgs = (list?: VisionFile[]) => {
@@ -218,12 +174,34 @@ const Answer: FC<IAnswerProps> = ({
                 </div>
               )}
             </div>
-            <div className="absolute top-[-14px] right-[-14px] flex flex-row justify-end gap-1">
-              {!feedbackDisabled && !item.feedbackDisabled && renderItemOperation()}
-              {/* User feedback must be displayed */}
-              {!feedbackDisabled && renderFeedbackRating(feedback?.rating)}
-            </div>
           </div>
+          {/* message actions: like, dislike, copy, regenerate */}
+          {!feedbackDisabled && !item.feedbackDisabled && !isResponding && (
+            <div className={`${s.itemOperation} mt-1 ml-2 w-fit items-center gap-0.5 rounded-[10px] border border-gray-200 bg-white p-0.5 shadow-sm dark:border-zinc-700 dark:bg-zinc-800`}>
+              <OpBtn
+                title={t('common.operation.like') as string}
+                active={feedback?.rating === 'like'}
+                onClick={() => toggleRating('like')}
+              >
+                <RatingIcon isLike={true} />
+              </OpBtn>
+              <OpBtn
+                title={t('common.operation.dislike') as string}
+                active={feedback?.rating === 'dislike'}
+                onClick={() => toggleRating('dislike')}
+              >
+                <RatingIcon isLike={false} />
+              </OpBtn>
+              <OpBtn title='Copy' onClick={handleCopy}>
+                <ClipboardDocumentIcon className='w-4 h-4' />
+              </OpBtn>
+              {onRegenerate && (
+                <OpBtn title='Regenerate' onClick={onRegenerate}>
+                  <ArrowPathIcon className='w-4 h-4' />
+                </OpBtn>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
