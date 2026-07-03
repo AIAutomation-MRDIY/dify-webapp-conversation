@@ -21,10 +21,10 @@ const TemplateVarPanel: FC<ITemplateVarPanelProps> = ({
   isFold,
 }) => {
   return (
-    <div className={cn(isFold ? 'border border-indigo-100' : s.boxShodow, className, 'rounded-xl ')}>
+    <div className={cn(isFold ? 'border border-indigo-100 dark:border-zinc-700' : s.boxShodow, className, 'rounded-xl bg-white dark:bg-zinc-800')}>
       {/* header */}
       <div
-        className={cn(isFold && 'rounded-b-xl', 'rounded-t-xl px-6 py-4 bg-indigo-25 text-xs')}
+        className={cn(isFold && 'rounded-b-xl', 'rounded-t-xl px-6 py-4 bg-indigo-25 dark:bg-zinc-800/60 text-xs')}
       >
         {header}
       </div>
@@ -58,7 +58,7 @@ export const VarOpBtnGroup: FC<{ className?: string, onConfirm: () => void, onCa
   const { t } = useTranslation()
 
   return (
-    <div className={cn(className, 'flex mt-3 space-x-2 mobile:ml-0 tablet:ml-[128px] text-sm')}>
+    <div className={cn(className, 'flex mt-4 space-x-2 text-sm')}>
       <Button
         className='text-sm'
         type='primary'

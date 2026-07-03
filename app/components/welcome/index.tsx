@@ -92,7 +92,7 @@ const Welcome: FC<IWelcomeProps> = ({
       <div className='space-y-4'>
         {promptConfig.prompt_variables.map(item => (
           <div className='text-sm' key={item.key}>
-            <label className='block mb-1.5 font-medium text-gray-700'>
+            <label className='block mb-1.5 font-medium text-gray-700 dark:text-gray-300'>
               {item.name}
               {!item.required && (
                 <span className='ml-1 font-normal text-gray-400'>({t('app.variableTable.optional')})</span>
@@ -254,7 +254,7 @@ const Welcome: FC<IWelcomeProps> = ({
       >
         {renderInputs()}
         <ChatBtn
-          className='mt-3 mobile:ml-0 tablet:ml-[128px]'
+          className='mt-4'
           onClick={handleChat}
         />
       </TemplateVarPanel>

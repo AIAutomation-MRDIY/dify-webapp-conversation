@@ -720,6 +720,7 @@ const Main: FC<IMainProps> = () => {
                   checkCanSend={checkCanSend}
                   visionConfig={visionConfig}
                   fileConfig={fileConfig}
+                  sidebarCollapsed={isSidebarCollapsed}
                 />
               </div>)
           }
