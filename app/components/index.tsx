@@ -673,7 +673,7 @@ const Main: FC<IMainProps> = () => {
   if (!APP_ID || !APP_INFO || !promptConfig) { return <Loading type='app' /> }
 
   return (
-    <div className='bg-white dark:bg-zinc-900'>
+    <div className='flex h-full flex-col bg-white dark:bg-zinc-900'>
       {(isMobile || isSidebarCollapsed) && (
         <Header
           title={APP_INFO.title}
@@ -684,7 +684,7 @@ const Main: FC<IMainProps> = () => {
           onCreateNewChat={() => handleConversationIdChange('-1')}
         />
       )}
-      <div className="flex bg-white dark:bg-zinc-900 overflow-hidden">
+      <div className="flex flex-1 min-h-0 bg-white dark:bg-zinc-900 overflow-hidden">
         {/* sidebar */}
         {!isMobile && !isSidebarCollapsed && renderSidebar()}
         {isMobile && isShowSidebar && (
@@ -696,7 +696,7 @@ const Main: FC<IMainProps> = () => {
         )}
         {/* main */}
         <div
-          className={`flex-grow flex flex-col overflow-y-auto bg-[linear-gradient(180deg,rgba(249,250,251,0.9)_0%,rgba(242,244,247,0.9)_90.48%)] dark:bg-[linear-gradient(180deg,rgba(24,24,27,0.95)_0%,rgba(39,39,42,0.95)_90.48%)] ${(isMobile || isSidebarCollapsed) ? 'h-[calc(100vh_-_3.5rem)]' : 'h-screen'}`}
+          className='flex-grow flex flex-col h-full overflow-y-auto bg-[linear-gradient(180deg,rgba(249,250,251,0.9)_0%,rgba(242,244,247,0.9)_90.48%)] dark:bg-[linear-gradient(180deg,rgba(24,24,27,0.95)_0%,rgba(39,39,42,0.95)_90.48%)]'
         >
           <ConfigSence
             conversationName={conversationName}

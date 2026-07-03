@@ -59,7 +59,7 @@ const Sidebar: FC<ISidebarProps> = ({
 
   return (
     <div
-      className="shrink-0 flex flex-col bg-gray-50 dark:bg-zinc-900 pc:w-[260px] tablet:w-[220px] mobile:w-[280px] border-r border-gray-200 dark:border-zinc-800 mobile:h-full tablet:h-screen"
+      className="shrink-0 flex flex-col h-full bg-gray-50 dark:bg-zinc-900 pc:w-[260px] tablet:w-[220px] mobile:w-[280px] border-r border-gray-200 dark:border-zinc-800"
     >
       {/* app info */}
       {title && (

@@ -26,8 +26,8 @@ const LocaleLayout = async ({
             __html: `(function(){try{var t=localStorage.getItem('pandai-theme')||'system';var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);document.documentElement.style.colorScheme=d?'dark':'light';}catch(e){}})();`,
           }}
         />
-        <div className="overflow-x-auto">
-          <div className="w-screen h-screen min-w-[300px]">
+        <div className="h-full overflow-x-auto">
+          <div className="h-full w-full min-w-[300px]">
             {children}
           </div>
         </div>

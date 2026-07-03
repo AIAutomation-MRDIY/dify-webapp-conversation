@@ -31,7 +31,7 @@ const Header: FC<IHeaderProps> = ({
   const initial = (user?.name || user?.email || '?').trim()[0]?.toUpperCase()
 
   return (
-    <div className="relative shrink-0 flex items-center h-14 px-3 bg-white border-b border-gray-200 dark:bg-zinc-900 dark:border-zinc-800">
+    <div className="relative shrink-0 flex items-center h-14 px-3 pc:px-4 bg-white border-b border-gray-200 dark:bg-zinc-900 dark:border-zinc-800">
       {/* left: sidebar toggle */}
       <div className="z-10 flex items-center gap-2 min-w-0">
         {(isMobile || showToggle) && (
