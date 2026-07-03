@@ -1,7 +1,10 @@
 .answerIcon {
   position: relative;
-  background: url(./icons/robot.svg) center center no-repeat;
-  background-size: contain;
+  /* PandAI mascot, cropped to the head */
+  background: #fff url(/mrdiy-panda.png) top center no-repeat;
+  background-size: cover;
+  border-radius: 50%;
+  border: 1px solid #F3F4F6;
 }
 
 .typeingIcon {

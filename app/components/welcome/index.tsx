@@ -89,10 +89,15 @@ const Welcome: FC<IWelcomeProps> = ({
 
   const renderInputs = () => {
     return (
-      <div className='space-y-3'>
+      <div className='space-y-4'>
         {promptConfig.prompt_variables.map(item => (
-          <div className='tablet:flex items-start mobile:space-y-2 tablet:space-y-0 mobile:text-xs tablet:text-sm' key={item.key}>
-            <label className={`flex-shrink-0 flex items-center tablet:leading-9 mobile:text-gray-700 tablet:text-gray-900 mobile:font-medium pc:font-normal ${s.formLabel}`}>{item.name}</label>
+          <div className='text-sm' key={item.key}>
+            <label className='block mb-1.5 font-medium text-gray-700'>
+              {item.name}
+              {!item.required && (
+                <span className='ml-1 font-normal text-gray-400'>({t('app.variableTable.optional')})</span>
+              )}
+            </label>
             {item.type === 'select'
               && (
                 <Select
