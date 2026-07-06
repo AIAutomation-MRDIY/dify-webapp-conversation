@@ -26,8 +26,9 @@ const LocaleLayout = async ({
             __html: `(function(){try{var t=localStorage.getItem('pandai-theme')||'system';var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);document.documentElement.style.colorScheme=d?'dark':'light';}catch(e){}})();`,
           }}
         />
-        <div className="h-full overflow-x-auto">
-          <div className="h-full w-full min-w-[300px]">
+        {/* below the minimum window size the app stops shrinking and scrolls instead */}
+        <div className="h-full overflow-auto">
+          <div className="h-full w-full min-w-[320px] min-h-[480px]">
             {children}
           </div>
         </div>
