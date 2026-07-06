@@ -196,9 +196,10 @@ const Chat: FC<IChatProps> = ({
       {
         !isHideSendInput && (
           <div
-            className={`fixed z-10 bottom-0 left-1/2 transform -translate-x-1/2 ${sidebarCollapsed ? '' : 'pc:ml-[130px] tablet:ml-[110px]'} mobile:ml-0 pc:w-[794px] tablet:w-[794px] max-w-full mobile:w-full px-3.5 pb-3 mobile:pb-2 bg-gradient-to-t from-[#F2F4F7] via-[#F2F4F7]/95 to-transparent dark:from-[#27272A] dark:via-[#27272A]/95 pt-4`}
+            className={`fixed z-10 bottom-0 right-0 ${sidebarCollapsed ? 'left-0' : 'mobile:left-0 tablet:left-[220px] pc:left-[260px]'} bg-gradient-to-t from-[#F2F4F7] via-[#F2F4F7]/95 to-transparent dark:from-[#27272A] dark:via-[#27272A]/95 pt-4`}
             style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
           >
+            <div className='mx-auto w-full max-w-[794px] px-3.5'>
             <FileContextProvider
               value={attachmentFiles}
               onChange={setAttachmentFiles}
@@ -266,6 +267,7 @@ const Chat: FC<IChatProps> = ({
             </FileContextProvider>
             <div className='mt-1.5 px-2 text-center text-xs text-gray-400 dark:text-gray-500'>
               AI can make mistakes. Please review and verify all AI-generated content before use.
+            </div>
             </div>
           </div>
         )
