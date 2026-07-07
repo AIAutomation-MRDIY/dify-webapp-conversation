@@ -5,12 +5,13 @@ import type { ChatItem, VisionFile } from '@/types/app'
 import type { Emoji } from '@/types/tools'
 import {
   ArrowPathIcon,
+  ChevronRightIcon,
   ClipboardDocumentIcon,
   HandThumbDownIcon,
   HandThumbUpIcon,
 } from '@heroicons/react/24/outline'
 import copy from 'copy-to-clipboard'
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Button from '@/app/components/base/button'
 import StreamdownMarkdown from '@/app/components/base/streamdown-markdown'
@@ -33,6 +34,48 @@ function OpBtn({ children, onClick, title, active }: { children: React.ReactNode
     >
       {children}
     </button>
+  )
+}
+
+// split "<think>...</think>answer" content coming from reasoning models;
+// while streaming, the closing tag may not have arrived yet
+const parseThinkContent = (content: string) => {
+  const match = content.match(/^\s*<think>([\s\S]*?)(?:<\/think>([\s\S]*))?$/)
+  if (!match)
+    return { thought: null, answer: content }
+  return {
+    thought: (match[1] || '').trim(),
+    answer: (match[2] || '').replace(/^\n+/, ''),
+  }
+}
+
+const ThinkPanel: FC<{ thought: string, isThinking: boolean }> = ({ thought, isThinking }) => {
+  const [open, setOpen] = useState(isThinking)
+  const wasThinking = useRef(isThinking)
+
+  // auto-collapse once the actual answer starts streaming
+  useEffect(() => {
+    if (wasThinking.current && !isThinking) {
+      setOpen(false)
+      wasThinking.current = false
+    }
+  }, [isThinking])
+
+  return (
+    <div className='mb-1'>
+      <button
+        onClick={() => setOpen(v => !v)}
+        className='flex items-center gap-0.5 text-xs text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
+      >
+        <ChevronRightIcon className={`h-3.5 w-3.5 transition-transform ${open ? 'rotate-90' : ''}`} />
+        {isThinking ? 'Thinking…' : 'Thought process'}
+      </button>
+      {open && (
+        <div className='mt-1.5 mb-2 border-l-2 border-gray-200 dark:border-zinc-600 pl-3 text-xs leading-5 text-gray-400 dark:text-gray-500 whitespace-pre-wrap break-words'>
+          {thought}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -88,9 +131,11 @@ const Answer: FC<IAnswerProps> = ({
 
   const { t } = useTranslation()
 
+  const { thought, answer: answerContent } = parseThinkContent(content)
+
   const copyText = isAgentMode
     ? (agent_thoughts || []).map(thought => thought.thought).filter(Boolean).join('\n') || content
-    : content
+    : (answerContent || content)
 
   const handleCopy = () => {
     copy(copyText)
@@ -158,7 +203,10 @@ const Answer: FC<IAnswerProps> = ({
                 : (isAgentMode
                   ? agentModeAnswer
                   : (
-                    <StreamdownMarkdown content={content} />
+                    <>
+                      {thought && <ThinkPanel thought={thought} isThinking={!!isResponding && !answerContent} />}
+                      {(answerContent || !thought) && <StreamdownMarkdown content={answerContent || (thought ? '' : content)} />}
+                    </>
                   ))}
               {suggestedQuestions.length > 0 && (
                 <div className="mt-3">
