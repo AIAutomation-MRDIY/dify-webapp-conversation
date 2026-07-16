@@ -78,3 +78,17 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+## Environment variables
+
+Set these in Vercel (Project → Settings → Environment Variables) or in a local `.env.local`. See [LARK_SETUP.md](LARK_SETUP.md) for the full setup guide.
+
+| Variable | Value |
+| --- | --- |
+| `NEXT_PUBLIC_APP_ID` | your Dify app ID |
+| `NEXT_PUBLIC_APP_KEY` | your Dify API key (`app-...`) |
+| `NEXT_PUBLIC_API_URL` | e.g. `https://api.dify.ai/v1` or your self-hosted Dify |
+| `LARK_APP_ID` | from Lark Developer Console (`cli_...`) |
+| `LARK_APP_SECRET` | from Lark Developer Console |
+| `SESSION_SECRET` | a long random string (`openssl rand -hex 32`) |
+| `LARK_CLIENT_ONLY` | `true` if you want to block normal browsers entirely (optional) |
