@@ -18,7 +18,7 @@ import { AttachmentFileList } from '@/app/components/base/file-uploader-in-attac
 import { FileContextProvider } from '@/app/components/base/file-uploader-in-attachment/store'
 import type { FileEntity, FileUpload } from '@/app/components/base/file-uploader-in-attachment/types'
 import { getProcessedFiles } from '@/app/components/base/file-uploader-in-attachment/utils'
-import { PaperAirplaneIcon } from '@heroicons/react/24/solid'
+import { PaperAirplaneIcon, StopIcon } from '@heroicons/react/24/solid'
 import { APP_INFO } from '@/config'
 
 export interface IChatProps {
@@ -34,6 +34,7 @@ export interface IChatProps {
   onFeedback?: FeedbackFunc
   checkCanSend?: () => boolean
   onSend?: (message: string, files: VisionFile[]) => void
+  onStop?: () => void
   useCurrentUserAvatar?: boolean
   isResponding?: boolean
   controlClearQuery?: number
@@ -50,6 +51,7 @@ const Chat: FC<IChatProps> = ({
   onFeedback,
   checkCanSend,
   onSend = () => { },
+  onStop = () => { },
   useCurrentUserAvatar,
   isResponding,
   controlClearQuery,
@@ -246,22 +248,38 @@ const Chat: FC<IChatProps> = ({
                   )
                 }
                 <div className='absolute bottom-[9px] right-3 flex items-center gap-1'>
-                  <Tooltip
-                    selector='send-tip'
-                    htmlContent={
-                      <div>
-                        <div>{t('common.operation.send')} Enter</div>
-                        <div>{t('common.operation.lineBreak')} Shift Enter</div>
-                      </div>
-                    }
-                  >
-                    <div
-                      className='flex items-center justify-center w-8 h-8 rounded-lg bg-primary-600 hover:bg-primary-700 cursor-pointer'
-                      onClick={handleSend}
-                    >
-                      <PaperAirplaneIcon className='w-4 h-4 text-white' />
-                    </div>
-                  </Tooltip>
+                  {isResponding
+                    ? (
+                      <Tooltip
+                        selector='stop-tip'
+                        htmlContent={<div>Stop generating</div>}
+                      >
+                        <div
+                          className='flex items-center justify-center w-8 h-8 rounded-lg bg-gray-500 hover:bg-gray-600 cursor-pointer'
+                          onClick={onStop}
+                        >
+                          <StopIcon className='w-4 h-4 text-white' />
+                        </div>
+                      </Tooltip>
+                    )
+                    : (
+                      <Tooltip
+                        selector='send-tip'
+                        htmlContent={
+                          <div>
+                            <div>{t('common.operation.send')} Enter</div>
+                            <div>{t('common.operation.lineBreak')} Shift Enter</div>
+                          </div>
+                        }
+                      >
+                        <div
+                          className='flex items-center justify-center w-8 h-8 rounded-lg bg-primary-600 hover:bg-primary-700 cursor-pointer'
+                          onClick={handleSend}
+                        >
+                          <PaperAirplaneIcon className='w-4 h-4 text-white' />
+                        </div>
+                      </Tooltip>
+                    )}
                 </div>
               </div>
             </FileContextProvider>

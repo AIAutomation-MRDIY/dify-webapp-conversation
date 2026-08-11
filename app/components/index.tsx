@@ -296,6 +296,10 @@ const Main: FC<IMainProps> = () => {
 
   const [isResponding, { setTrue: setRespondingTrue, setFalse: setRespondingFalse }] = useBoolean(false)
   const [abortController, setAbortController] = useState<AbortController | null>(null)
+  const handleStop = () => {
+    abortController?.abort()
+    setRespondingFalse()
+  }
   const { notify } = Toast
   const logError = (message: string) => {
     notify({ type: 'error', message })
@@ -717,6 +721,7 @@ const Main: FC<IMainProps> = () => {
                 <Chat
                   chatList={chatList}
                   onSend={handleSend}
+                  onStop={handleStop}
                   onFeedback={handleFeedback}
                   isResponding={isResponding}
                   checkCanSend={checkCanSend}
