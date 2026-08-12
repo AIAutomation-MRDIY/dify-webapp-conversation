@@ -9,7 +9,7 @@ import Toast from '@/app/components/base/toast'
 import Sidebar from '@/app/components/sidebar'
 import ConfigSence from '@/app/components/config-scence'
 import Header from '@/app/components/header'
-import { fetchAppParams, fetchChatList, fetchConversations, generationConversationName, renameConversation, sendChatMessage, updateFeedback } from '@/service'
+import { deleteConversation, fetchAppParams, fetchChatList, fetchConversations, generationConversationName, renameConversation, sendChatMessage, updateFeedback } from '@/service'
 import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import type { FileUpload } from '@/app/components/base/file-uploader-in-attachment/types'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
@@ -657,6 +657,19 @@ const Main: FC<IMainProps> = () => {
     }
   }
 
+  const handleDeleteConversation = async (id: string) => {
+    try {
+      await deleteConversation(id)
+      setConversationList(conversationList.filter(item => item.id !== id))
+      if (id === getCurrConversationId())
+        handleConversationIdChange('-1')
+      notify({ type: 'success', message: t('common.api.success') })
+    }
+    catch (e: any) {
+      notify({ type: 'error', message: e.message })
+    }
+  }
+
   const renderSidebar = () => {
     if (!APP_ID || !APP_INFO || !promptConfig) { return null }
     return (
@@ -668,6 +681,7 @@ const Main: FC<IMainProps> = () => {
         copyRight={APP_INFO.copyright || APP_INFO.title}
         onHide={isMobile ? hideSidebar : collapseSidebar}
         onRenameConversation={handleRenameConversation}
+        onDeleteConversation={handleDeleteConversation}
       />
     )
   }

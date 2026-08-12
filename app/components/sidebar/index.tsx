@@ -5,8 +5,11 @@ import {
   ArrowRightOnRectangleIcon,
   ChatBubbleOvalLeftEllipsisIcon,
   ChevronDoubleLeftIcon,
+  MagnifyingGlassIcon,
   PencilIcon,
   PencilSquareIcon,
+  TrashIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline'
 import { ChatBubbleOvalLeftEllipsisIcon as ChatBubbleOvalLeftEllipsisSolidIcon } from '@heroicons/react/24/solid'
 import AppIcon from '@/app/components/base/app-icon'
@@ -28,6 +31,7 @@ export interface ISidebarProps {
   list: ConversationItem[]
   onHide?: () => void
   onRenameConversation?: (id: string, name: string) => void
+  onDeleteConversation?: (id: string) => void
 }
 
 const Sidebar: FC<ISidebarProps> = ({
@@ -37,12 +41,26 @@ const Sidebar: FC<ISidebarProps> = ({
   list,
   onHide,
   onRenameConversation,
+  onDeleteConversation,
 }) => {
   const { t } = useTranslation()
   const user = useLarkUser()
   const initial = (user?.name || user?.email || '?').trim()[0]?.toUpperCase()
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingName, setEditingName] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const filteredList = searchQuery.trim()
+    ? list.filter(item =>
+      item.name.toLowerCase().includes(searchQuery.trim().toLowerCase()),
+    )
+    : list
+
+  const handleDeleteClick = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation()
+    if (window.confirm('Delete this conversation? This only removes it from your own list.'))
+      onDeleteConversation?.(id)
+  }
 
   const startEditing = (id: string, name: string) => {
     setEditingId(id)
@@ -89,8 +107,35 @@ const Sidebar: FC<ISidebarProps> = ({
         </div>
       )}
 
+      {list.length > 0 && (
+        <div className="px-3 pb-2">
+          <div className="relative">
+            <MagnifyingGlassIcon className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search conversations"
+              className="w-full h-9 rounded-lg border border-gray-200 bg-white pl-8 pr-8 text-sm text-gray-700 placeholder:text-gray-400 outline-none focus:border-primary-400 dark:bg-zinc-800 dark:border-zinc-700 dark:text-gray-200"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center h-5 w-5 rounded text-gray-400 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-zinc-700"
+              >
+                <XMarkIcon className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 pb-3">
-        {list.map((item) => {
+        {filteredList.length === 0 && searchQuery && (
+          <div className="px-3 py-4 text-center text-sm text-gray-400">
+            No conversations found
+          </div>
+        )}
+        {filteredList.map((item) => {
           const isCurrent = item.id === currentId
           const ItemIcon
             = isCurrent ? ChatBubbleOvalLeftEllipsisSolidIcon : ChatBubbleOvalLeftEllipsisIcon
@@ -146,6 +191,15 @@ const Sidebar: FC<ISidebarProps> = ({
                         className="hidden group-hover:flex items-center justify-center h-6 w-6 shrink-0 ml-1 rounded text-gray-400 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-zinc-700 dark:hover:text-gray-200"
                       >
                         <PencilIcon className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                    {item.id !== '-1' && onDeleteConversation && (
+                      <button
+                        title="Delete"
+                        onClick={e => handleDeleteClick(e, item.id)}
+                        className="hidden group-hover:flex items-center justify-center h-6 w-6 shrink-0 ml-1 rounded text-gray-400 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+                      >
+                        <TrashIcon className="h-3.5 w-3.5" />
                       </button>
                     )}
                   </>
