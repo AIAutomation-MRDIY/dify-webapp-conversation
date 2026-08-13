@@ -189,18 +189,20 @@ const Main: FC<IMainProps> = () => {
   // inputs stay editable; edited values apply to the next message / new chat
   const canEditInputs = true
   const createNewChat = () => {
-    // if new chat is already exist, do not create new chat
-    if (conversationList.some(item => item.id === '-1')) { return }
+    setConversationList((prevList) => {
+      // if new chat is already exist, do not create new chat
+      if (prevList.some(item => item.id === '-1')) { return prevList }
 
-    setConversationList(produce(conversationList, (draft) => {
-      draft.unshift({
-        id: '-1',
-        name: t('app.chat.newChatDefaultName'),
-        inputs: newConversationInputs,
-        introduction: conversationIntroduction,
-        suggested_questions: suggestedQuestions,
+      return produce(prevList, (draft) => {
+        draft.unshift({
+          id: '-1',
+          name: t('app.chat.newChatDefaultName'),
+          inputs: newConversationInputs,
+          introduction: conversationIntroduction,
+          suggested_questions: suggestedQuestions,
+        })
       })
-    }))
+    })
   }
 
   // sometime introduction is not applied to state
@@ -645,7 +647,7 @@ const Main: FC<IMainProps> = () => {
   const handleRenameConversation = async (id: string, newName: string) => {
     try {
       await renameConversation(id, newName)
-      setConversationList(produce(conversationList, (draft) => {
+      setConversationList(prevList => produce(prevList, (draft) => {
         const item = draft.find(item => item.id === id)
         if (item)
           item.name = newName
@@ -660,7 +662,8 @@ const Main: FC<IMainProps> = () => {
   const handleDeleteConversation = async (id: string) => {
     try {
       await deleteConversation(id)
-      setConversationList(conversationList.filter(item => item.id !== id))
+      setConversationList(prevList => prevList.filter(item => item.id !== id))
+      // if the deleted conversation was the one currently open, fall back to a new chat
       if (id === getCurrConversationId())
         handleConversationIdChange('-1')
       notify({ type: 'success', message: t('common.api.success') })

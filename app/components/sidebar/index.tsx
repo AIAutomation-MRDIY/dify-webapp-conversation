@@ -1,17 +1,20 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import type { FC } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Dialog, Menu, Transition } from '@headlessui/react'
 import {
   ArrowRightOnRectangleIcon,
   ChatBubbleOvalLeftEllipsisIcon,
   ChevronDoubleLeftIcon,
+  EllipsisHorizontalIcon,
   MagnifyingGlassIcon,
+  MapPinIcon,
   PencilIcon,
   PencilSquareIcon,
   TrashIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline'
-import { ChatBubbleOvalLeftEllipsisIcon as ChatBubbleOvalLeftEllipsisSolidIcon } from '@heroicons/react/24/solid'
+import { ChatBubbleOvalLeftEllipsisIcon as ChatBubbleOvalLeftEllipsisSolidIcon, MapPinIcon as MapPinSolidIcon } from '@heroicons/react/24/solid'
 import AppIcon from '@/app/components/base/app-icon'
 import UserMenu from '@/app/components/user-menu'
 import useLarkUser from '@/hooks/use-lark-user'
@@ -22,6 +25,23 @@ function classNames(...classes: any[]) {
 }
 
 const MAX_CONVERSATION_LENTH = 20
+
+// Dify's public Service API has no endpoint to persist a "pinned" flag
+// server-side (only rename + delete are supported). So pin state is kept
+// client-side only, per-browser, via localStorage — it won't sync across
+// devices, but it's the only option without a backend change on Dify's side.
+const PINNED_STORAGE_KEY = 'pinned_conversation_ids'
+
+const getStoredPinnedIds = (): string[] => {
+  if (typeof window === 'undefined') { return [] }
+  try {
+    const raw = window.localStorage.getItem(PINNED_STORAGE_KEY)
+    return raw ? JSON.parse(raw) : []
+  }
+  catch {
+    return []
+  }
+}
 
 export interface ISidebarProps {
   title?: string
@@ -49,17 +69,42 @@ const Sidebar: FC<ISidebarProps> = ({
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingName, setEditingName] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
+  const [pinnedIds, setPinnedIds] = useState<string[]>([])
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string, name: string } | null>(null)
 
-  const filteredList = searchQuery.trim()
+  // load pinned state once on mount (client-only, since localStorage isn't
+  // available during server-side render)
+  useEffect(() => {
+    setPinnedIds(getStoredPinnedIds())
+  }, [])
+
+  const togglePin = (id: string) => {
+    setPinnedIds((prev) => {
+      const next = prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id]
+      window.localStorage.setItem(PINNED_STORAGE_KEY, JSON.stringify(next))
+      return next
+    })
+  }
+
+  const searchFilteredList = searchQuery.trim()
     ? list.filter(item =>
       item.name.toLowerCase().includes(searchQuery.trim().toLowerCase()),
     )
     : list
 
-  const handleDeleteClick = (e: React.MouseEvent, id: string) => {
-    e.stopPropagation()
-    if (window.confirm('Delete this conversation? This only removes it from your own list.'))
-      onDeleteConversation?.(id)
+  // pinned conversations float to the top, in their original relative order;
+  // "New Chat" (id '-1') is never pinned and always stays wherever it is
+  const pinnedList = searchFilteredList.filter(item => item.id !== '-1' && pinnedIds.includes(item.id))
+  const unpinnedList = searchFilteredList.filter(item => item.id === '-1' || !pinnedIds.includes(item.id))
+
+  const handleDeleteClick = (id: string, name: string) => {
+    setDeleteTarget({ id, name })
+  }
+
+  const confirmDelete = () => {
+    if (deleteTarget)
+      onDeleteConversation?.(deleteTarget.id)
+    setDeleteTarget(null)
   }
 
   const startEditing = (id: string, name: string) => {
@@ -73,6 +118,133 @@ const Sidebar: FC<ISidebarProps> = ({
     if (editingId && item && newName && newName !== item.name)
       onRenameConversation?.(editingId, newName)
     setEditingId(null)
+  }
+
+  const renderConversationItem = (item: ConversationItem) => {
+    const isCurrent = item.id === currentId
+    const ItemIcon
+      = isCurrent ? ChatBubbleOvalLeftEllipsisSolidIcon : ChatBubbleOvalLeftEllipsisIcon
+    const isEditing = editingId === item.id
+    const isPinned = pinnedIds.includes(item.id)
+    const isNewChatItem = item.id === '-1'
+
+    return (
+      <div
+        onClick={() => { if (!isEditing) { onCurrentIdChange(item.id) } }}
+        key={item.id}
+        title={item.name}
+        className={classNames(
+          isCurrent
+            ? 'bg-white text-primary-700 shadow-sm ring-1 ring-gray-200 dark:bg-zinc-800 dark:text-primary-300 dark:ring-zinc-700'
+            : 'text-gray-700 hover:bg-gray-200/60 dark:text-gray-300 dark:hover:bg-zinc-800/60',
+          'group flex items-center rounded-lg px-3 py-2.5 text-sm font-medium cursor-pointer transition-colors',
+        )}
+      >
+        {isPinned && !isEditing && (
+          <MapPinSolidIcon className="mr-1.5 h-3 w-3 flex-shrink-0 text-primary-500 rotate-45" aria-hidden="true" />
+        )}
+        <ItemIcon
+          className={classNames(
+            isCurrent
+              ? 'text-primary-600'
+              : 'text-gray-400 group-hover:text-gray-500',
+            'mr-2.5 h-4 w-4 flex-shrink-0',
+          )}
+          aria-hidden="true"
+        />
+        {isEditing
+          ? (
+            <input
+              autoFocus
+              value={editingName}
+              onChange={e => setEditingName(e.target.value)}
+              onBlur={commitEditing}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter')
+                  commitEditing()
+                if (e.key === 'Escape')
+                  setEditingId(null)
+              }}
+              onClick={e => e.stopPropagation()}
+              className="w-full min-w-0 rounded border border-primary-300 bg-white px-1 py-0.5 text-sm font-normal outline-none dark:bg-zinc-800 dark:border-primary-600 dark:text-gray-100"
+            />
+          )
+          : (
+            <>
+              <span className="flex-1 truncate">{item.name}</span>
+              {!isNewChatItem && (onRenameConversation || onDeleteConversation) && (
+                <Menu as="div" className="relative hidden group-hover:block shrink-0 ml-1" onClick={e => e.stopPropagation()}>
+                  <Menu.Button
+                    title="More"
+                    className="flex items-center justify-center h-6 w-6 rounded text-gray-400 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-zinc-700 dark:hover:text-gray-200"
+                  >
+                    <EllipsisHorizontalIcon className="h-4 w-4" />
+                  </Menu.Button>
+                  <Transition
+                    enter="transition ease-out duration-100"
+                    enterFrom="transform opacity-0 scale-95"
+                    enterTo="transform opacity-100 scale-100"
+                    leave="transition ease-in duration-75"
+                    leaveFrom="transform opacity-100 scale-100"
+                    leaveTo="transform opacity-0 scale-95"
+                  >
+                    <Menu.Items className="absolute right-0 z-10 mt-1 w-40 origin-top-right rounded-lg bg-white dark:bg-zinc-800 shadow-lg ring-1 ring-black/5 dark:ring-zinc-700 focus:outline-none overflow-hidden">
+                      <div className="py-1">
+                        <Menu.Item>
+                          {({ active }) => (
+                            <button
+                              onClick={() => togglePin(item.id)}
+                              className={classNames(
+                                active ? 'bg-gray-100 dark:bg-zinc-700' : '',
+                                'flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200',
+                              )}
+                            >
+                              <MapPinIcon className="h-4 w-4" />
+                              {isPinned ? 'Unpin' : 'Pin'}
+                            </button>
+                          )}
+                        </Menu.Item>
+                        {onRenameConversation && (
+                          <Menu.Item>
+                            {({ active }) => (
+                              <button
+                                onClick={() => startEditing(item.id, item.name)}
+                                className={classNames(
+                                  active ? 'bg-gray-100 dark:bg-zinc-700' : '',
+                                  'flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200',
+                                )}
+                              >
+                                <PencilIcon className="h-4 w-4" />
+                                Rename
+                              </button>
+                            )}
+                          </Menu.Item>
+                        )}
+                        {onDeleteConversation && (
+                          <Menu.Item>
+                            {({ active }) => (
+                              <button
+                                onClick={() => handleDeleteClick(item.id, item.name)}
+                                className={classNames(
+                                  active ? 'bg-red-50 dark:bg-red-900/30' : '',
+                                  'flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400',
+                                )}
+                              >
+                                <TrashIcon className="h-4 w-4" />
+                                Delete
+                              </button>
+                            )}
+                          </Menu.Item>
+                        )}
+                      </div>
+                    </Menu.Items>
+                  </Transition>
+                </Menu>
+              )}
+            </>
+          )}
+      </div>
+    )
   }
 
   return (
@@ -130,83 +302,25 @@ const Sidebar: FC<ISidebarProps> = ({
       )}
 
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 pb-3">
-        {filteredList.length === 0 && searchQuery && (
+        {searchFilteredList.length === 0 && searchQuery && (
           <div className="px-3 py-4 text-center text-sm text-gray-400">
             No conversations found
           </div>
         )}
-        {filteredList.map((item) => {
-          const isCurrent = item.id === currentId
-          const ItemIcon
-            = isCurrent ? ChatBubbleOvalLeftEllipsisSolidIcon : ChatBubbleOvalLeftEllipsisIcon
-          const isEditing = editingId === item.id
-          return (
-            <div
-              onClick={() => { if (!isEditing) { onCurrentIdChange(item.id) } }}
-              key={item.id}
-              title={item.name}
-              className={classNames(
-                isCurrent
-                  ? 'bg-white text-primary-700 shadow-sm ring-1 ring-gray-200 dark:bg-zinc-800 dark:text-primary-300 dark:ring-zinc-700'
-                  : 'text-gray-700 hover:bg-gray-200/60 dark:text-gray-300 dark:hover:bg-zinc-800/60',
-                'group flex items-center rounded-lg px-3 py-2.5 text-sm font-medium cursor-pointer transition-colors',
-              )}
-            >
-              <ItemIcon
-                className={classNames(
-                  isCurrent
-                    ? 'text-primary-600'
-                    : 'text-gray-400 group-hover:text-gray-500',
-                  'mr-2.5 h-4 w-4 flex-shrink-0',
-                )}
-                aria-hidden="true"
-              />
-              {isEditing
-                ? (
-                  <input
-                    autoFocus
-                    value={editingName}
-                    onChange={e => setEditingName(e.target.value)}
-                    onBlur={commitEditing}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter')
-                        commitEditing()
-                      if (e.key === 'Escape')
-                        setEditingId(null)
-                    }}
-                    onClick={e => e.stopPropagation()}
-                    className="w-full min-w-0 rounded border border-primary-300 bg-white px-1 py-0.5 text-sm font-normal outline-none dark:bg-zinc-800 dark:border-primary-600 dark:text-gray-100"
-                  />
-                )
-                : (
-                  <>
-                    <span className="flex-1 truncate">{item.name}</span>
-                    {item.id !== '-1' && onRenameConversation && (
-                      <button
-                        title="Rename"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          startEditing(item.id, item.name)
-                        }}
-                        className="hidden group-hover:flex items-center justify-center h-6 w-6 shrink-0 ml-1 rounded text-gray-400 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-zinc-700 dark:hover:text-gray-200"
-                      >
-                        <PencilIcon className="h-3.5 w-3.5" />
-                      </button>
-                    )}
-                    {item.id !== '-1' && onDeleteConversation && (
-                      <button
-                        title="Delete"
-                        onClick={e => handleDeleteClick(e, item.id)}
-                        className="hidden group-hover:flex items-center justify-center h-6 w-6 shrink-0 ml-1 rounded text-gray-400 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
-                      >
-                        <TrashIcon className="h-3.5 w-3.5" />
-                      </button>
-                    )}
-                  </>
-                )}
+
+        {pinnedList.length > 0 && (
+          <>
+            <div className="px-3 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+              Pinned
             </div>
-          )
-        })}
+            {pinnedList.map(item => renderConversationItem(item))}
+            <div className="px-3 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+              Conversations
+            </div>
+          </>
+        )}
+
+        {unpinnedList.map(item => renderConversationItem(item))}
       </nav>
 
       {/* user info */}
@@ -251,6 +365,64 @@ const Sidebar: FC<ISidebarProps> = ({
           Copyright © {(new Date()).getFullYear()} MR D.I.Y. GROUP (M) BERHAD (CO.NO. : 201001034084 (918007-M)) All Rights Reserved.
         </div>
       </div>
+
+      <Transition appear show={!!deleteTarget} as={React.Fragment}>
+        <Dialog as="div" className="relative z-50" onClose={() => setDeleteTarget(null)}>
+          <Transition.Child
+            as={React.Fragment}
+            enter="ease-out duration-150"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-100"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black/30" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4">
+              <Transition.Child
+                as={React.Fragment}
+                enter="ease-out duration-150"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-100"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-sm rounded-xl bg-white dark:bg-zinc-800 p-5 shadow-xl">
+                  <Dialog.Title className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                    Delete conversation?
+                  </Dialog.Title>
+                  <Dialog.Description className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    {deleteTarget?.name && (
+                      <>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">&ldquo;{deleteTarget.name}&rdquo;</span>{' '}
+                      </>
+                    )}
+                    will be removed from your own conversation list. This can&apos;t be undone.
+                  </Dialog.Description>
+                  <div className="mt-5 flex justify-end gap-2">
+                    <button
+                      onClick={() => setDeleteTarget(null)}
+                      className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-700"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={confirmDelete}
+                      className="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
     </div>
   )
 }
