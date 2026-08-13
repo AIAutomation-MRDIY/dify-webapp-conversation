@@ -6,6 +6,7 @@ import {
   ArrowRightOnRectangleIcon,
   ChatBubbleOvalLeftEllipsisIcon,
   ChevronDoubleLeftIcon,
+  Cog6ToothIcon,
   EllipsisHorizontalIcon,
   MagnifyingGlassIcon,
   MapPinIcon,
@@ -323,33 +324,48 @@ const Sidebar: FC<ISidebarProps> = ({
         {unpinnedList.map(item => renderConversationItem(item))}
       </nav>
 
-      {/* user info */}
-      {user && (
-        <div className="flex items-center gap-1 px-3 py-3 border-t border-gray-200 dark:border-zinc-800">
-          <UserMenu placement="top" className="min-w-0 flex-1">
-            <div className="flex items-center gap-2.5 rounded-lg px-1 py-1 -mx-1 hover:bg-gray-200/60 dark:hover:bg-zinc-800/60">
-              {user.avatar
-                ? (
-                  <img
-                    src={user.avatar}
-                    alt={user.name || 'avatar'}
-                    className="h-8 w-8 shrink-0 rounded-full object-cover bg-gray-100"
-                    referrerPolicy="no-referrer"
-                  />
-                )
-                : (
-                  <div className="flex items-center justify-center h-8 w-8 shrink-0 rounded-full bg-primary-600 text-white text-sm font-medium">
-                    {initial}
-                  </div>
-                )}
-              <div className="min-w-0 flex-1">
-                <div className="text-sm text-gray-900 dark:text-gray-100 font-medium truncate">{user.name || user.email}</div>
-                {user.name && user.email && (
-                  <div className="text-xs text-gray-400 truncate">{user.email}</div>
-                )}
+      {/* settings / user info */}
+      <div className="flex items-center gap-1 px-3 py-3 border-t border-gray-200 dark:border-zinc-800">
+        <UserMenu placement="top" className="min-w-0 flex-1">
+          {user
+            ? (
+              <div className="flex items-center gap-2.5 rounded-lg px-1 py-1 -mx-1 hover:bg-gray-200/60 dark:hover:bg-zinc-800/60">
+                {user.avatar
+                  ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name || 'avatar'}
+                      className="h-8 w-8 shrink-0 rounded-full object-cover bg-gray-100"
+                      referrerPolicy="no-referrer"
+                    />
+                  )
+                  : (
+                    <div className="flex items-center justify-center h-8 w-8 shrink-0 rounded-full bg-primary-600 text-white text-sm font-medium">
+                      {initial}
+                    </div>
+                  )}
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm text-gray-900 dark:text-gray-100 font-medium truncate">{user.name || user.email}</div>
+                  {user.name && user.email && (
+                    <div className="text-xs text-gray-400 truncate">{user.email}</div>
+                  )}
+                </div>
               </div>
-            </div>
-          </UserMenu>
+            )
+            : (
+              // no logged-in Lark session (e.g. local dev without auth) —
+              // still expose theme/about/privacy, just without personal identity
+              <div className="flex items-center gap-2.5 rounded-lg px-1 py-1 -mx-1 hover:bg-gray-200/60 dark:hover:bg-zinc-800/60">
+                <div className="flex items-center justify-center h-8 w-8 shrink-0 rounded-full bg-gray-300 text-gray-600 dark:bg-zinc-700 dark:text-gray-300">
+                  <Cog6ToothIcon className="h-4 w-4" />
+                </div>
+                <div className="min-w-0 flex-1 text-sm text-gray-700 dark:text-gray-200 font-medium">
+                  Settings
+                </div>
+              </div>
+            )}
+        </UserMenu>
+        {user && (
           <a
             href="/api/auth/logout"
             title="Sign out"
@@ -357,8 +373,8 @@ const Sidebar: FC<ISidebarProps> = ({
           >
             <ArrowRightOnRectangleIcon className="h-4 w-4" />
           </a>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="flex flex-shrink-0 px-4 pb-3">
         <div className="text-gray-400 font-normal text-[10px] leading-4 uppercase">

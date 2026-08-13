@@ -12,7 +12,7 @@ import type { FileUpload } from '../types'
 import {
   PortalToFollowElem,
   PortalToFollowElemContent,
-  PortalToFollowElemTrigger,
+  PortalToFollowElemTrigger,  
 } from '@/app/components/base/portal-to-follow-elem'
 import Button from '@/app/components/base/button'
 import cn from '@/utils/classnames'
@@ -59,28 +59,28 @@ const FileFromLinkOrLocal = ({
         {trigger(open)}
       </PortalToFollowElemTrigger>
       <PortalToFollowElemContent className='z-[1001]'>
-        <div className='w-[280px] rounded-xl border-[0.5px] border-components-panel-border bg-components-panel-bg-blur p-3 shadow-lg'>
+        <div className='w-[280px] rounded-xl border border-gray-700/60 bg-gray-800/95 backdrop-blur-sm p-3 shadow-lg'>
           {
             showFromLink && (
               <>
-                <div className={cn(
-                  'flex h-8 items-center rounded-lg border border-components-input-border-active bg-components-input-bg-active p-1 shadow-xs',
-                  showError && 'border-components-input-border-destructive',
-                )}>
-                  <input
-                    className='system-sm-regular mr-0.5 block grow appearance-none bg-transparent px-1 outline-none'
-                    placeholder={t('common.fileUploader.pasteFileLinkInputPlaceholder') || ''}
-                    value={url}
-                    onChange={(e) => {
-                      setShowError(false)
-                      setUrl(e.target.value.trim())
-                    }}
-                    disabled={disabled}
-                  />
+                <div className='flex h-8 items-stretch'>
+                  <div className={cn(
+                    'flex flex-1 items-center rounded-l-lg border border-r-0 border-gray-600 bg-gray-900/60 pl-2',
+                    showError && 'border-red-500',
+                  )}>
+                    <input
+                      className='block w-full appearance-none bg-transparent text-sm text-gray-200 placeholder:text-gray-500 outline-none'
+                      placeholder={t('common.fileUploader.pasteFileLinkInputPlaceholder') || ''}
+                      value={url}
+                      onChange={(e) => {
+                        setShowError(false)
+                        setUrl(e.target.value.trim())
+                      }}
+                      disabled={disabled}
+                    />
+                  </div>
                   <Button
-                    className='shrink-0'
-                    // size='small'
-                    // variant='primary'
+                    className='shrink-0 !h-8 !rounded-l-none !rounded-r-lg !px-3 !py-0 !text-xs'
                     type='primary'
                     disabled={!url || disabled}
                     onClick={handleSaveUrl}
@@ -90,7 +90,7 @@ const FileFromLinkOrLocal = ({
                 </div>
                 {
                   showError && (
-                    <div className='body-xs-regular mt-0.5 text-text-destructive'>
+                    <div className='mt-0.5 text-xs text-red-400'>
                       {t('common.fileUploader.pasteFileLinkInvalid')}
                     </div>
                   )
@@ -100,18 +100,17 @@ const FileFromLinkOrLocal = ({
           }
           {
             showFromLink && showFromLocal && (
-              <div className='system-2xs-medium-uppercase flex h-7 items-center p-2 text-text-quaternary'>
-                <div className='mr-2 h-[1px] w-[93px] bg-gradient-to-l from-[rgba(16,24,40,0.08)]' />
+              <div className='flex h-7 items-center p-2 text-[10px] font-medium uppercase tracking-wide text-gray-500'>
+                <div className='mr-2 h-[1px] flex-1 bg-gray-700' />
                 OR
-                <div className='ml-2 h-[1px] w-[93px] bg-gradient-to-r from-[rgba(16,24,40,0.08)]' />
+                <div className='ml-2 h-[1px] flex-1 bg-gray-700' />
               </div>
             )
           }
           {
             showFromLocal && (
               <Button
-                className='relative w-full'
-                // variant='secondary-accent'
+                className='relative w-full !border-gray-600 !bg-gray-700/40 !text-gray-200 hover:!bg-gray-700/70'
                 disabled={disabled}
               >
                 <RiUploadCloud2Line className='mr-1 h-4 w-4' />

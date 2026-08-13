@@ -14,7 +14,7 @@ import Toast from '@/app/components/base/toast'
 import ChatImageUploader from '@/app/components/base/image-uploader/chat-image-uploader'
 import ImageList from '@/app/components/base/image-uploader/image-list'
 import { useImageFiles } from '@/app/components/base/image-uploader/hooks'
-import { AttachmentFileList } from '@/app/components/base/file-uploader-in-attachment/compact'
+import { AttachmentFileList, AttachmentTrigger } from '@/app/components/base/file-uploader-in-attachment/compact'
 import { FileContextProvider } from '@/app/components/base/file-uploader-in-attachment/store'
 import type { FileEntity, FileUpload } from '@/app/components/base/file-uploader-in-attachment/types'
 import { getProcessedFiles } from '@/app/components/base/file-uploader-in-attachment/utils'
@@ -224,7 +224,8 @@ const Chat: FC<IChatProps> = ({
                   {fileConfig?.enabled && <AttachmentFileList fileConfig={fileConfig} />}
                   <Textarea
                     className={`
-                      block w-full px-2 py-[7px] leading-5 max-h-none text-base text-gray-700 dark:text-gray-200 bg-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none appearance-none resize-none pr-[48px]
+                      block w-full px-2 py-[7px] leading-5 max-h-none text-base text-gray-700 dark:text-gray-200 bg-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none appearance-none resize-none
+                      ${fileConfig?.enabled ? 'pr-[88px]' : 'pr-[48px]'}
                       ${visionConfig?.enabled && 'pl-12'}
                     `}
                     value={query}
@@ -248,6 +249,12 @@ const Chat: FC<IChatProps> = ({
                   )
                 }
                 <div className='absolute bottom-[9px] right-3 flex items-center gap-1'>
+                  {fileConfig?.enabled && (
+                    <>
+                      <AttachmentTrigger fileConfig={fileConfig} />
+                      <div className='mx-0.5 w-[1px] h-4 bg-black/5' />
+                    </>
+                  )}
                   {isResponding
                     ? (
                       <Tooltip
