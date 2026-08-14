@@ -354,7 +354,16 @@ export const upload = (fetchOptions: any): Promise<any> => {
     xhr.withCredentials = true
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4) {
-        if (xhr.status === 200) { resolve({ id: xhr.response }) }
+        if (xhr.status === 200) {
+          try {
+            resolve(JSON.parse(xhr.response))
+          }
+          catch {
+            // fall back to the old (broken) shape rather than hard-failing,
+            // in case some caller ever relies on a non-JSON response
+            resolve({ id: xhr.response })
+          }
+        }
         else { reject(xhr) }
       }
     }

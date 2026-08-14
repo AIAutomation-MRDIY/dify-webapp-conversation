@@ -17,6 +17,7 @@ import Button from '@/app/components/base/button'
 import StreamdownMarkdown from '@/app/components/base/streamdown-markdown'
 import Toast from '@/app/components/base/toast'
 import ImageGallery from '../../base/image-gallery'
+import SentFileList from '../sent-file-list'
 import LoadingAnim from '../loading-anim'
 import s from '../style.module.css'
 import Thought from '../thought'
@@ -151,6 +152,11 @@ const Answer: FC<IAnswerProps> = ({
     return list.filter(file => file.type === 'image' && file.belongs_to === 'assistant')
   }
 
+  const getDocs = (list?: VisionFile[]) => {
+    if (!list) { return [] }
+    return list.filter(file => file.type !== 'image' && file.belongs_to === 'assistant')
+  }
+
   const agentModeAnswer = (
     <div>
       {agent_thoughts?.map((item, index) => (
@@ -168,6 +174,9 @@ const Answer: FC<IAnswerProps> = ({
             />
           )}
 
+          {getDocs(item.message_files).length > 0 && (
+            <SentFileList files={getDocs(item.message_files)} />
+          )}
           {getImgs(item.message_files).length > 0 && (
             <ImageGallery srcs={getImgs(item.message_files).map(item => item.url)} />
           )}

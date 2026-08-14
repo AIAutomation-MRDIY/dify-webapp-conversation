@@ -189,7 +189,8 @@ const Chat: FC<IChatProps> = ({
               id={item.id}
               content={item.content}
               useCurrentUserAvatar={useCurrentUserAvatar}
-              imgSrcs={(item.message_files && item.message_files?.length > 0) ? item.message_files.map(item => item.url) : []}
+              imgSrcs={(item.message_files || []).filter(file => file.type === 'image').map(file => file.url)}
+              docFiles={(item.message_files || []).filter(file => file.type !== 'image')}
               onEditSend={sendDirect}
             />
           )

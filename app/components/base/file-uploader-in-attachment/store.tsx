@@ -1,6 +1,7 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useRef,
 } from 'react'
 import {
@@ -56,6 +57,19 @@ export const FileContextProvider = ({
   const storeRef = useRef<FileStore | undefined>(undefined)
 
   if (!storeRef.current) { storeRef.current = createFileStore(value, onChange) }
+
+  // The store above only initializes from `value` once. If the parent
+  // resets `value` afterwards (e.g. clearing attachments after a message
+  // is sent), that change needs to be pushed into the store directly —
+  // otherwise the store (which is what the UI actually reads from) never
+  // finds out, and keeps showing/re-sending the stale file list.
+  // Using .setState (not the store's own setFiles) avoids re-firing
+  // onChange and causing an infinite loop.
+  useEffect(() => {
+    const store = storeRef.current
+    if (!store) { return }
+    if (store.getState().files !== value) { store.setState({ files: value || [] }) }
+  }, [value])
 
   return (
     <FileContext.Provider value={storeRef.current}>
