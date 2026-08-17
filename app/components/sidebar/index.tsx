@@ -174,9 +174,10 @@ const Sidebar: FC<ISidebarProps> = ({
             <>
               <span className="flex-1 truncate">{item.name}</span>
               {!isNewChatItem && (onRenameConversation || onDeleteConversation) && (
-                <Menu as="div" className="relative hidden group-hover:block shrink-0 ml-1" onClick={e => e.stopPropagation()}>
+                <Menu as="div" className="relative hidden group-hover:block shrink-0 ml-1">
                   <Menu.Button
                     title="More"
+                    onClick={e => e.stopPropagation()}
                     className="flex items-center justify-center h-6 w-6 rounded text-gray-400 hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-zinc-700 dark:hover:text-gray-200"
                   >
                     <EllipsisHorizontalIcon className="h-4 w-4" />
@@ -189,12 +190,18 @@ const Sidebar: FC<ISidebarProps> = ({
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
                   >
-                    <Menu.Items className="absolute right-0 z-10 mt-1 w-40 origin-top-right rounded-lg bg-white dark:bg-zinc-800 shadow-lg ring-1 ring-black/5 dark:ring-zinc-700 focus:outline-none overflow-hidden">
+                    <Menu.Items
+                      onClick={e => e.stopPropagation()}
+                      className="absolute right-0 z-10 mt-1 w-40 origin-top-right rounded-lg bg-white dark:bg-zinc-800 shadow-lg ring-1 ring-black/5 dark:ring-zinc-700 focus:outline-none overflow-hidden"
+                    >
                       <div className="py-1">
                         <Menu.Item>
                           {({ active }) => (
                             <button
-                              onClick={() => togglePin(item.id)}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                togglePin(item.id)
+                              }}
                               className={classNames(
                                 active ? 'bg-gray-100 dark:bg-zinc-700' : '',
                                 'flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200',
@@ -209,7 +216,10 @@ const Sidebar: FC<ISidebarProps> = ({
                           <Menu.Item>
                             {({ active }) => (
                               <button
-                                onClick={() => startEditing(item.id, item.name)}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  startEditing(item.id, item.name)
+                                }}
                                 className={classNames(
                                   active ? 'bg-gray-100 dark:bg-zinc-700' : '',
                                   'flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200',
@@ -225,7 +235,10 @@ const Sidebar: FC<ISidebarProps> = ({
                           <Menu.Item>
                             {({ active }) => (
                               <button
-                                onClick={() => handleDeleteClick(item.id, item.name)}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleDeleteClick(item.id, item.name)
+                                }}
                                 className={classNames(
                                   active ? 'bg-red-50 dark:bg-red-900/30' : '',
                                   'flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400',
