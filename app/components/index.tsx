@@ -9,7 +9,7 @@ import Toast from '@/app/components/base/toast'
 import Sidebar from '@/app/components/sidebar'
 import ConfigSence from '@/app/components/config-scence'
 import Header from '@/app/components/header'
-import { fetchAppParams, fetchChatList, fetchConversations, generationConversationName, renameConversation, sendChatMessage, updateFeedback } from '@/service'
+import { deleteConversation, fetchAppParams, fetchChatList, fetchConversations, generationConversationName, renameConversation, sendChatMessage, updateFeedback } from '@/service'
 import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import type { FileUpload } from '@/app/components/base/file-uploader-in-attachment/types'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
@@ -189,18 +189,20 @@ const Main: FC<IMainProps> = () => {
   // inputs stay editable; edited values apply to the next message / new chat
   const canEditInputs = true
   const createNewChat = () => {
-    // if new chat is already exist, do not create new chat
-    if (conversationList.some(item => item.id === '-1')) { return }
+    setConversationList((prevList) => {
+      // if new chat is already exist, do not create new chat
+      if (prevList.some(item => item.id === '-1')) { return prevList }
 
-    setConversationList(produce(conversationList, (draft) => {
-      draft.unshift({
-        id: '-1',
-        name: t('app.chat.newChatDefaultName'),
-        inputs: newConversationInputs,
-        introduction: conversationIntroduction,
-        suggested_questions: suggestedQuestions,
+      return produce(prevList, (draft) => {
+        draft.unshift({
+          id: '-1',
+          name: t('app.chat.newChatDefaultName'),
+          inputs: newConversationInputs,
+          introduction: conversationIntroduction,
+          suggested_questions: suggestedQuestions,
+        })
       })
-    }))
+    })
   }
 
   // sometime introduction is not applied to state
@@ -296,6 +298,10 @@ const Main: FC<IMainProps> = () => {
 
   const [isResponding, { setTrue: setRespondingTrue, setFalse: setRespondingFalse }] = useBoolean(false)
   const [abortController, setAbortController] = useState<AbortController | null>(null)
+  const handleStop = () => {
+    abortController?.abort()
+    setRespondingFalse()
+  }
   const { notify } = Toast
   const logError = (message: string) => {
     notify({ type: 'error', message })
@@ -399,7 +405,7 @@ const Main: FC<IMainProps> = () => {
       id: questionId,
       content: message,
       isAnswer: false,
-      message_files: (files || []).filter((f: any) => f.type === 'image'),
+      message_files: files || [],
     }
 
     const placeholderAnswerId = `answer-placeholder-${Date.now()}`
@@ -641,11 +647,25 @@ const Main: FC<IMainProps> = () => {
   const handleRenameConversation = async (id: string, newName: string) => {
     try {
       await renameConversation(id, newName)
-      setConversationList(produce(conversationList, (draft) => {
+      setConversationList(prevList => produce(prevList, (draft) => {
         const item = draft.find(item => item.id === id)
         if (item)
           item.name = newName
       }))
+      notify({ type: 'success', message: t('common.api.success') })
+    }
+    catch (e: any) {
+      notify({ type: 'error', message: e.message })
+    }
+  }
+
+  const handleDeleteConversation = async (id: string) => {
+    try {
+      await deleteConversation(id)
+      setConversationList(prevList => prevList.filter(item => item.id !== id))
+      // if the deleted conversation was the one currently open, fall back to a new chat
+      if (id === getCurrConversationId())
+        handleConversationIdChange('-1')
       notify({ type: 'success', message: t('common.api.success') })
     }
     catch (e: any) {
@@ -664,6 +684,7 @@ const Main: FC<IMainProps> = () => {
         copyRight={APP_INFO.copyright || APP_INFO.title}
         onHide={isMobile ? hideSidebar : collapseSidebar}
         onRenameConversation={handleRenameConversation}
+        onDeleteConversation={handleDeleteConversation}
       />
     )
   }
@@ -717,6 +738,7 @@ const Main: FC<IMainProps> = () => {
                 <Chat
                   chatList={chatList}
                   onSend={handleSend}
+                  onStop={handleStop}
                   onFeedback={handleFeedback}
                   isResponding={isResponding}
                   checkCanSend={checkCanSend}

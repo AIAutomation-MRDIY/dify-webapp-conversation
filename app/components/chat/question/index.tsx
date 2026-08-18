@@ -10,15 +10,18 @@ import type { IChatItem } from '../type'
 
 import StreamdownMarkdown from '@/app/components/base/streamdown-markdown'
 import ImageGallery from '@/app/components/base/image-gallery'
+import SentFileList from '@/app/components/chat/sent-file-list'
 import Toast from '@/app/components/base/toast'
 import useLarkUser from '@/hooks/use-lark-user'
+import type { VisionFile } from '@/types/app'
 
 type IQuestionProps = Pick<IChatItem, 'id' | 'content' | 'useCurrentUserAvatar'> & {
   imgSrcs?: string[]
+  docFiles?: VisionFile[]
   onEditSend?: (content: string) => void
 }
 
-const Question: FC<IQuestionProps> = ({ id, content, imgSrcs, onEditSend }) => {
+const Question: FC<IQuestionProps> = ({ id, content, imgSrcs, docFiles, onEditSend }) => {
   const user = useLarkUser()
   const initial = (user?.name || user?.email || '?').trim()[0]?.toUpperCase()
   const [isEditing, setIsEditing] = useState(false)
@@ -77,6 +80,9 @@ const Question: FC<IQuestionProps> = ({ id, content, imgSrcs, onEditSend }) => {
             )
             : (
               <div className='py-3 px-4 bg-[#E1EFFE] dark:bg-[#27314D] rounded-2xl break-words'>
+                {docFiles && docFiles.length > 0 && (
+                  <SentFileList files={docFiles} />
+                )}
                 {imgSrcs && imgSrcs.length > 0 && (
                   <ImageGallery srcs={imgSrcs} />
                 )}

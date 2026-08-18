@@ -241,6 +241,16 @@ const handleStream = (
         return
       }
       if (!hasError) { read() }
+    }).catch((e: any) => {
+      // user clicked stop mid-stream — the reader itself gets aborted.
+      // This is expected, not a real error, but it's also NOT a genuine
+      // successful completion — signal hasError so callers don't run
+      // "assume it fully succeeded" logic on a cut-off response.
+      if (e.name === 'AbortError') {
+        onCompleted?.(true)
+        return
+      }
+      throw e
     })
   }
   read()
@@ -344,7 +354,16 @@ export const upload = (fetchOptions: any): Promise<any> => {
     xhr.withCredentials = true
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4) {
-        if (xhr.status === 200) { resolve({ id: xhr.response }) }
+        if (xhr.status === 200) {
+          try {
+            resolve(JSON.parse(xhr.response))
+          }
+          catch {
+            // fall back to the old (broken) shape rather than hard-failing,
+            // in case some caller ever relies on a non-JSON response
+            resolve({ id: xhr.response })
+          }
+        }
         else { reject(xhr) }
       }
     }
@@ -368,10 +387,15 @@ export const ssePost = (
     onNodeStarted,
     onNodeFinished,
     onError,
+    getAbortController,
   }: IOtherOptions,
 ) => {
+  const abortController = new AbortController()
+  getAbortController?.(abortController)
+
   const options = Object.assign({}, baseOptions, {
     method: 'POST',
+    signal: abortController.signal,
   }, fetchOptions)
 
   const urlPrefix = API_PREFIX
@@ -403,6 +427,13 @@ export const ssePost = (
       }, onThought, onMessageEnd, onMessageReplace, onFile, onWorkflowStarted, onWorkflowFinished, onNodeStarted, onNodeFinished)
     })
     .catch((e) => {
+      if (e.name === 'AbortError') {
+        // user intentionally clicked stop — not a real error, don't show a toast,
+        // but DO signal hasError so callers skip "assume success" bookkeeping
+        // (e.g. treating a cut-off new conversation as if it fully completed)
+        onCompleted?.(true)
+        return
+      }
       Toast.notify({ type: 'error', message: e })
       onError?.(e)
     })

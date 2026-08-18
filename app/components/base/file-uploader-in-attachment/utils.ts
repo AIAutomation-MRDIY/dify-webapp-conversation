@@ -100,7 +100,11 @@ export const getProcessedFiles = (files: FileEntity[]) => {
   return files.filter(file => file.progress !== -1 && fileIsUploaded(file)).map(fileItem => ({
     type: fileItem.supportFileType,
     transfer_method: fileItem.transferMethod,
-    url: fileItem.url || '',
+    name: fileItem.name,
+    // local uploads never get a real hosted `url` until the server round-trips —
+    // fall back to the local base64 preview so the message renders immediately
+    // instead of showing a broken/empty image until the next page refresh
+    url: fileItem.url || fileItem.base64Url || '',
     upload_file_id: fileItem.uploadedId || '',
   }))
 }

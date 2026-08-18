@@ -14,11 +14,11 @@ import Toast from '@/app/components/base/toast'
 import ChatImageUploader from '@/app/components/base/image-uploader/chat-image-uploader'
 import ImageList from '@/app/components/base/image-uploader/image-list'
 import { useImageFiles } from '@/app/components/base/image-uploader/hooks'
-import { AttachmentFileList } from '@/app/components/base/file-uploader-in-attachment/compact'
+import { AttachmentFileList, AttachmentTrigger } from '@/app/components/base/file-uploader-in-attachment/compact'
 import { FileContextProvider } from '@/app/components/base/file-uploader-in-attachment/store'
 import type { FileEntity, FileUpload } from '@/app/components/base/file-uploader-in-attachment/types'
 import { getProcessedFiles } from '@/app/components/base/file-uploader-in-attachment/utils'
-import { PaperAirplaneIcon } from '@heroicons/react/24/solid'
+import { PaperAirplaneIcon, StopIcon } from '@heroicons/react/24/solid'
 import { APP_INFO } from '@/config'
 
 export interface IChatProps {
@@ -34,6 +34,7 @@ export interface IChatProps {
   onFeedback?: FeedbackFunc
   checkCanSend?: () => boolean
   onSend?: (message: string, files: VisionFile[]) => void
+  onStop?: () => void
   useCurrentUserAvatar?: boolean
   isResponding?: boolean
   controlClearQuery?: number
@@ -50,6 +51,7 @@ const Chat: FC<IChatProps> = ({
   onFeedback,
   checkCanSend,
   onSend = () => { },
+  onStop = () => { },
   useCurrentUserAvatar,
   isResponding,
   controlClearQuery,
@@ -187,7 +189,8 @@ const Chat: FC<IChatProps> = ({
               id={item.id}
               content={item.content}
               useCurrentUserAvatar={useCurrentUserAvatar}
-              imgSrcs={(item.message_files && item.message_files?.length > 0) ? item.message_files.map(item => item.url) : []}
+              imgSrcs={(item.message_files || []).filter(file => file.type === 'image').map(file => file.url)}
+              docFiles={(item.message_files || []).filter(file => file.type !== 'image')}
               onEditSend={sendDirect}
             />
           )
@@ -222,7 +225,8 @@ const Chat: FC<IChatProps> = ({
                   {fileConfig?.enabled && <AttachmentFileList fileConfig={fileConfig} />}
                   <Textarea
                     className={`
-                      block w-full px-2 py-[7px] leading-5 max-h-none text-base text-gray-700 dark:text-gray-200 bg-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none appearance-none resize-none pr-[48px]
+                      block w-full px-2 py-[7px] leading-5 max-h-none text-base text-gray-700 dark:text-gray-200 bg-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none appearance-none resize-none
+                      ${fileConfig?.enabled ? 'pr-[88px]' : 'pr-[48px]'}
                       ${visionConfig?.enabled && 'pl-12'}
                     `}
                     value={query}
@@ -246,22 +250,44 @@ const Chat: FC<IChatProps> = ({
                   )
                 }
                 <div className='absolute bottom-[9px] right-3 flex items-center gap-1'>
-                  <Tooltip
-                    selector='send-tip'
-                    htmlContent={
-                      <div>
-                        <div>{t('common.operation.send')} Enter</div>
-                        <div>{t('common.operation.lineBreak')} Shift Enter</div>
-                      </div>
-                    }
-                  >
-                    <div
-                      className='flex items-center justify-center w-8 h-8 rounded-lg bg-primary-600 hover:bg-primary-700 cursor-pointer'
-                      onClick={handleSend}
-                    >
-                      <PaperAirplaneIcon className='w-4 h-4 text-white' />
-                    </div>
-                  </Tooltip>
+                  {fileConfig?.enabled && (
+                    <>
+                      <AttachmentTrigger fileConfig={fileConfig} />
+                      <div className='mx-0.5 w-[1px] h-4 bg-black/5' />
+                    </>
+                  )}
+                  {isResponding
+                    ? (
+                      <Tooltip
+                        selector='stop-tip'
+                        htmlContent={<div>Stop generating</div>}
+                      >
+                        <div
+                          className='flex items-center justify-center w-8 h-8 rounded-lg bg-gray-500 hover:bg-gray-600 cursor-pointer'
+                          onClick={onStop}
+                        >
+                          <StopIcon className='w-4 h-4 text-white' />
+                        </div>
+                      </Tooltip>
+                    )
+                    : (
+                      <Tooltip
+                        selector='send-tip'
+                        htmlContent={
+                          <div>
+                            <div>{t('common.operation.send')} Enter</div>
+                            <div>{t('common.operation.lineBreak')} Shift Enter</div>
+                          </div>
+                        }
+                      >
+                        <div
+                          className='flex items-center justify-center w-8 h-8 rounded-lg bg-primary-600 hover:bg-primary-700 cursor-pointer'
+                          onClick={handleSend}
+                        >
+                          <PaperAirplaneIcon className='w-4 h-4 text-white' />
+                        </div>
+                      </Tooltip>
+                    )}
                 </div>
               </div>
             </FileContextProvider>
