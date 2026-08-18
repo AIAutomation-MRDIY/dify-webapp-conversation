@@ -4,12 +4,14 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import produce, { setAutoFreeze } from 'immer'
 import { useBoolean, useGetState } from 'ahooks'
+import { ArrowPathIcon, ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline'
 import useConversation from '@/hooks/use-conversation'
 import Toast from '@/app/components/base/toast'
 import Sidebar from '@/app/components/sidebar'
 import ConfigSence from '@/app/components/config-scence'
 import Header from '@/app/components/header'
-import { deleteConversation, fetchAppParams, fetchChatList, fetchConversations, generationConversationName, renameConversation, sendChatMessage, stopChatMessage, updateFeedback } from '@/service'
+import ChangeTopicModal from '@/app/components/change-topic-modal'
+import { deleteConversation, fetchAppParams, fetchChatList, fetchConversations, generationConversationName, renameConversation, sendChatMessage, updateFeedback } from '@/service'
 import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import type { FileUpload } from '@/app/components/base/file-uploader-in-attachment/types'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
@@ -86,6 +88,9 @@ const Main: FC<IMainProps> = () => {
 
   const [conversationIdChangeBecauseOfNew, setConversationIdChangeBecauseOfNew, getConversationIdChangeBecauseOfNew] = useGetState(false)
   const [isChatStarted, { setTrue: setChatStarted, setFalse: setChatNotStarted }] = useBoolean(false)
+  const hasPromptVariables = (promptConfig?.prompt_variables?.length ?? 0) > 0
+  const [showChangeTopicModal, setShowChangeTopicModal] = useState(false)
+  const handleChangeTopic = () => setShowChangeTopicModal(true)
   const handleStartChat = (inputs: Record<string, any>) => {
     createNewChat()
     setConversationIdChangeBecauseOfNew(true)
@@ -299,17 +304,8 @@ const Main: FC<IMainProps> = () => {
   const [isResponding, { setTrue: setRespondingTrue, setFalse: setRespondingFalse }] = useBoolean(false)
   const [abortController, setAbortController] = useState<AbortController | null>(null)
   const handleStop = () => {
-    // close our end of the stream for instant feedback...
     abortController?.abort()
     setRespondingFalse()
-    // ...then tell Dify to actually stop the task, otherwise it keeps
-    // generating (and billing) on the server after we stop listening
-    const taskId = getMessageTaskId()
-    if (taskId) {
-      stopChatMessage(taskId).catch(() => {
-        // best effort: the stream is already closed for the user either way
-      })
-    }
   }
   const { notify } = Toast
   const logError = (message: string) => {
@@ -336,8 +332,7 @@ const Main: FC<IMainProps> = () => {
 
   const [controlFocus, setControlFocus] = useState(0)
   const [openingSuggestedQuestions, setOpeningSuggestedQuestions] = useState<string[]>([])
-  // getter form so handleStop always reads the current task id, not a stale closure
-  const [messageTaskId, setMessageTaskId, getMessageTaskId] = useGetState('')
+  const [messageTaskId, setMessageTaskId] = useState('')
   const [hasStopResponded, setHasStopResponded, getHasStopResponded] = useGetState(false)
   const [isRespondingConIsCurrCon, setIsRespondingConCurrCon, getIsRespondingConIsCurrCon] = useGetState(true)
   const [userQuery, setUserQuery] = useState('')
@@ -713,7 +708,28 @@ const Main: FC<IMainProps> = () => {
           showToggle={!isMobile && isSidebarCollapsed}
           onShowSideBar={isMobile ? showSidebar : expandSidebar}
           onCreateNewChat={() => handleConversationIdChange('-1')}
+          showConversationActions={hasPromptVariables}
+          onResetConversation={() => handleConversationIdChange('-1')}
+          onChangeTopic={handleChangeTopic}
         />
+      )}
+      {!isMobile && !isSidebarCollapsed && hasPromptVariables && (
+        <div className='flex items-center justify-end gap-1 h-12 px-4 shrink-0 border-b border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900'>
+          <button
+            title="Reset conversation"
+            className='flex items-center justify-center h-9 w-9 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-zinc-800 dark:hover:text-gray-300'
+            onClick={() => handleConversationIdChange('-1')}
+          >
+            <ArrowPathIcon className='h-[18px] w-[18px]' />
+          </button>
+          <button
+            title="Change topic"
+            className='flex items-center justify-center h-9 w-9 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-zinc-800 dark:hover:text-gray-300'
+            onClick={handleChangeTopic}
+          >
+            <ChatBubbleLeftEllipsisIcon className='h-[18px] w-[18px]' />
+          </button>
+        </div>
       )}
       <div className="flex flex-1 min-h-0 bg-white dark:bg-zinc-900 overflow-hidden">
         {/* sidebar */}
@@ -760,6 +776,13 @@ const Main: FC<IMainProps> = () => {
           }
         </div>
       </div>
+      <ChangeTopicModal
+        isOpen={showChangeTopicModal}
+        onClose={() => setShowChangeTopicModal(false)}
+        promptConfig={promptConfig}
+        savedInputs={currInputs as Record<string, any>}
+        onSubmit={setCurrInputs}
+      />
     </div>
   )
 }

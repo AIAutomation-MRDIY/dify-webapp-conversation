@@ -26,6 +26,10 @@ export interface IWelcomeProps {
   onInputsChange: (inputs: Record<string, any>) => void
   // hide the conversation-name bar when the top header already shows it
   hideConversationNameBar?: boolean
+  // bump this (e.g. a counter) from a parent-level button to force the
+  // folded inputs panel open again, letting the user change their answers
+  // (e.g. pick a different category) without a full page/conversation reset
+  editInputsSignal?: number
 }
 
 const Welcome: FC<IWelcomeProps> = ({
@@ -39,10 +43,17 @@ const Welcome: FC<IWelcomeProps> = ({
   canEditInputs,
   savedInputs,
   onInputsChange,
+  editInputsSignal,
 }) => {
   const { t } = useTranslation()
   const hasVar = promptConfig.prompt_variables.length > 0
   const [isFold, setIsFold] = useState<boolean>(true)
+
+  useEffect(() => {
+    // only reopen when the parent actually bumped the signal (skips the
+    // initial mount, where editInputsSignal is 0/undefined by default)
+    if (editInputsSignal) { setIsFold(false) }
+  }, [editInputsSignal])
   const [inputs, setInputs] = useState<Record<string, any>>((() => {
     if (hasSetInputs) { return savedInputs }
 

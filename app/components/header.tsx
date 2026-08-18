@@ -2,7 +2,9 @@
 import type { FC } from 'react'
 import React from 'react'
 import {
+  ArrowPathIcon,
   Bars3Icon,
+  ChatBubbleLeftEllipsisIcon,
   PencilSquareIcon,
 } from '@heroicons/react/24/outline'
 import AppIcon from '@/app/components/base/app-icon'
@@ -17,6 +19,10 @@ export interface IHeaderProps {
   showToggle?: boolean
   onShowSideBar?: () => void
   onCreateNewChat?: () => void
+  // only shown when the app actually has configurable prompt variables
+  showConversationActions?: boolean
+  onResetConversation?: () => void
+  onChangeTopic?: () => void
 }
 
 const Header: FC<IHeaderProps> = ({
@@ -26,6 +32,9 @@ const Header: FC<IHeaderProps> = ({
   showToggle,
   onShowSideBar,
   onCreateNewChat,
+  showConversationActions,
+  onResetConversation,
+  onChangeTopic,
 }) => {
   const user = useLarkUser()
   const initial = (user?.name || user?.email || '?').trim()[0]?.toUpperCase()
@@ -65,6 +74,24 @@ const Header: FC<IHeaderProps> = ({
       )}
       {/* right: actions (mobile only) */}
       <div className="z-10 ml-auto flex items-center gap-1 shrink-0">
+        {showConversationActions && (
+          <>
+            <button
+              title="Reset conversation"
+              className="flex items-center justify-center h-9 w-9 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-zinc-800 dark:hover:text-gray-300"
+              onClick={() => onResetConversation?.()}
+            >
+              <ArrowPathIcon className="h-[18px] w-[18px]" />
+            </button>
+            <button
+              title="Change topic"
+              className="flex items-center justify-center h-9 w-9 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-zinc-800 dark:hover:text-gray-300"
+              onClick={() => onChangeTopic?.()}
+            >
+              <ChatBubbleLeftEllipsisIcon className="h-[18px] w-[18px]" />
+            </button>
+          </>
+        )}
         {isMobile && (
           <button
             className="flex items-center justify-center h-9 w-9 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800"
