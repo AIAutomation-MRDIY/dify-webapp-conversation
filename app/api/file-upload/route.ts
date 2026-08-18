@@ -6,8 +6,8 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
     const { user } = await getInfo(request)
-    formData.append('user', user)
-    const res = await client.fileUpload(formData)
+    // dify-client 3.x takes the user as its own argument and appends it itself
+    const res = await client.fileUpload(formData, user)
     // return the full Dify file object (id, name, size, mime_type, ...) as real JSON,
     // not a bare string — the client expects to JSON.parse this response
     return NextResponse.json(res.data)
