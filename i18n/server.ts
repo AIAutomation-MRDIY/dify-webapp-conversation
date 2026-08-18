@@ -24,7 +24,28 @@ export const getLocaleOnServer = async (): Promise<Locale> => {
     languages = new Negotiator({ headers: negotiatorHeaders }).languages()
   }
 
-  // match locale
-  const matchedLocale = match(languages, locales, i18n.defaultLocale) as Locale
-  return matchedLocale
+  // Negotiator returns ['*'] when Accept-Language is absent or a wildcard —
+  // which is what Next.js internal RSC/prefetch requests send (they show up
+  // with a `undici` user agent). Intl.getCanonicalLocales() throws a RangeError
+  // on those tags, which crashed page renders with a 500, so drop anything
+  // that isn't a valid language tag before matching.
+  const validLanguages = (languages || []).filter((lang) => {
+    if (!lang || lang === '*') { return false }
+    try {
+      Intl.getCanonicalLocales(lang)
+      return true
+    }
+    catch {
+      return false
+    }
+  })
+
+  if (!validLanguages.length) { return i18n.defaultLocale as Locale }
+
+  try {
+    return match(validLanguages, locales, i18n.defaultLocale) as Locale
+  }
+  catch {
+    return i18n.defaultLocale as Locale
+  }
 }
