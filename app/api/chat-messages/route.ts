@@ -11,6 +11,16 @@ export async function POST(request: NextRequest) {
     response_mode: responseMode,
   } = body
   const { user } = await getInfo(request)
-  const res = await client.createChatMessage(inputs, query, user, responseMode, conversationId, files)
+  // request-object form: the positional overload's 4th arg is a boolean `stream`,
+  // so passing the 'streaming' string there would be wrong
+  const res = await client.createChatMessage({
+    inputs,
+    query,
+    user,
+    response_mode: responseMode,
+    conversation_id: conversationId ?? undefined,
+    files,
+  })
+  // streaming responses expose the raw Readable on .data, same as before
   return new Response(res.data as any)
 }
