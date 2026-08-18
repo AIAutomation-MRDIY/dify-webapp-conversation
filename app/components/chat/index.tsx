@@ -14,7 +14,8 @@ import Toast from '@/app/components/base/toast'
 import ChatImageUploader from '@/app/components/base/image-uploader/chat-image-uploader'
 import ImageList from '@/app/components/base/image-uploader/image-list'
 import { useImageFiles } from '@/app/components/base/image-uploader/hooks'
-import { AttachmentFileList, AttachmentTrigger } from '@/app/components/base/file-uploader-in-attachment/compact'
+// AttachmentTrigger is intentionally not imported: the paperclip upload button is disabled
+import { AttachmentFileList } from '@/app/components/base/file-uploader-in-attachment/compact'
 import { FileContextProvider } from '@/app/components/base/file-uploader-in-attachment/store'
 import type { FileEntity, FileUpload } from '@/app/components/base/file-uploader-in-attachment/types'
 import { getProcessedFiles } from '@/app/components/base/file-uploader-in-attachment/utils'
@@ -250,12 +251,14 @@ const Chat: FC<IChatProps> = ({
                   )
                 }
                 <div className='absolute bottom-[9px] right-3 flex items-center gap-1'>
+                  {/* Attachment (paperclip) button is disabled — not used for now.
+                      To re-enable, restore the AttachmentTrigger import and uncomment:
                   {fileConfig?.enabled && (
                     <>
                       <AttachmentTrigger fileConfig={fileConfig} />
                       <div className='mx-0.5 w-[1px] h-4 bg-black/5' />
                     </>
-                  )}
+                  )} */}
                   {isResponding
                     ? (
                       <Tooltip
