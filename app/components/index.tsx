@@ -9,7 +9,7 @@ import Toast from '@/app/components/base/toast'
 import Sidebar from '@/app/components/sidebar'
 import ConfigSence from '@/app/components/config-scence'
 import Header from '@/app/components/header'
-import { deleteConversation, fetchAppParams, fetchChatList, fetchConversations, generationConversationName, renameConversation, sendChatMessage, updateFeedback } from '@/service'
+import { deleteConversation, fetchAppParams, fetchChatList, fetchConversations, generationConversationName, renameConversation, sendChatMessage, stopChatMessage, updateFeedback } from '@/service'
 import type { ChatItem, ConversationItem, Feedbacktype, PromptConfig, VisionFile, VisionSettings } from '@/types/app'
 import type { FileUpload } from '@/app/components/base/file-uploader-in-attachment/types'
 import { Resolution, TransferMethod, WorkflowRunningStatus } from '@/types/app'
@@ -299,8 +299,17 @@ const Main: FC<IMainProps> = () => {
   const [isResponding, { setTrue: setRespondingTrue, setFalse: setRespondingFalse }] = useBoolean(false)
   const [abortController, setAbortController] = useState<AbortController | null>(null)
   const handleStop = () => {
+    // close our end of the stream for instant feedback...
     abortController?.abort()
     setRespondingFalse()
+    // ...then tell Dify to actually stop the task, otherwise it keeps
+    // generating (and billing) on the server after we stop listening
+    const taskId = getMessageTaskId()
+    if (taskId) {
+      stopChatMessage(taskId).catch(() => {
+        // best effort: the stream is already closed for the user either way
+      })
+    }
   }
   const { notify } = Toast
   const logError = (message: string) => {
@@ -327,7 +336,8 @@ const Main: FC<IMainProps> = () => {
 
   const [controlFocus, setControlFocus] = useState(0)
   const [openingSuggestedQuestions, setOpeningSuggestedQuestions] = useState<string[]>([])
-  const [messageTaskId, setMessageTaskId] = useState('')
+  // getter form so handleStop always reads the current task id, not a stale closure
+  const [messageTaskId, setMessageTaskId, getMessageTaskId] = useGetState('')
   const [hasStopResponded, setHasStopResponded, getHasStopResponded] = useGetState(false)
   const [isRespondingConIsCurrCon, setIsRespondingConCurrCon, getIsRespondingConIsCurrCon] = useGetState(true)
   const [userQuery, setUserQuery] = useState('')

@@ -68,3 +68,8 @@ export const renameConversation = async (id: string, name: string) => {
 export const deleteConversation = async (id: string) => {
   return del(`conversations/${id}`)
 }
+
+// ask Dify to stop generating, so the model isn't left running server-side
+export const stopChatMessage = async (taskId: string) => {
+  return post(`chat-messages/${taskId}/stop`, { body: {} })
+}
