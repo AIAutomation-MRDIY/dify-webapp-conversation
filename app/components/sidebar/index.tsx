@@ -25,8 +25,6 @@ function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-const MAX_CONVERSATION_LENTH = 20
-
 // Dify's public Service API has no endpoint to persist a "pinned" flag
 // server-side (only rename + delete are supported). So pin state is kept
 // client-side only, per-browser, via localStorage — it won't sync across
@@ -104,7 +102,7 @@ const Sidebar: FC<ISidebarProps> = ({
 
   const confirmDelete = () => {
     if (deleteTarget)
-      onDeleteConversation?.(deleteTarget.id)
+    { onDeleteConversation?.(deleteTarget.id) }
     setDeleteTarget(null)
   }
 
@@ -117,7 +115,7 @@ const Sidebar: FC<ISidebarProps> = ({
     const newName = editingName.trim()
     const item = list.find(item => item.id === editingId)
     if (editingId && item && newName && newName !== item.name)
-      onRenameConversation?.(editingId, newName)
+    { onRenameConversation?.(editingId, newName) }
     setEditingId(null)
   }
 
@@ -162,9 +160,9 @@ const Sidebar: FC<ISidebarProps> = ({
               onBlur={commitEditing}
               onKeyDown={(e) => {
                 if (e.key === 'Enter')
-                  commitEditing()
+                { commitEditing() }
                 if (e.key === 'Escape')
-                  setEditingId(null)
+                { setEditingId(null) }
               }}
               onClick={e => e.stopPropagation()}
               className="w-full min-w-0 rounded border border-primary-300 bg-white px-1 py-0.5 text-sm font-normal outline-none dark:bg-zinc-800 dark:border-primary-600 dark:text-gray-100"
@@ -282,16 +280,16 @@ const Sidebar: FC<ISidebarProps> = ({
         </div>
       )}
 
-      {list.length < MAX_CONVERSATION_LENTH && (
-        <div className="flex flex-shrink-0 p-3">
-          <button
-            onClick={() => { onCurrentIdChange('-1') }}
-            className="flex w-full items-center justify-center gap-2 h-10 rounded-lg bg-primary-600 text-white text-sm font-medium shadow-sm hover:bg-primary-700 transition-colors"
-          >
-            <PencilSquareIcon className="h-4 w-4" /> {t('app.chat.newChat')}
-          </button>
-        </div>
-      )}
+      {/* always available: the upstream template hid this once you had 20+
+          conversations, which silently removed the app's primary action */}
+      <div className="flex flex-shrink-0 p-3">
+        <button
+          onClick={() => { onCurrentIdChange('-1') }}
+          className="flex w-full items-center justify-center gap-2 h-10 rounded-lg bg-primary-600 text-white text-sm font-medium shadow-sm hover:bg-primary-700 transition-colors"
+        >
+          <PencilSquareIcon className="h-4 w-4" /> {t('app.chat.newChat')}
+        </button>
+      </div>
 
       {list.length > 0 && (
         <div className="px-3 pb-2">
