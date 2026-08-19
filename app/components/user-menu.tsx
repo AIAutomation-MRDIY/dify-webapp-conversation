@@ -60,10 +60,19 @@ export interface UserMenuProps {
   children: ReactNode
   placement?: 'top' | 'bottom'
   className?: string
+  // extra items listed above the settings section — used on mobile, where the
+  // header has no room for the conversation action icons
+  actions?: UserMenuAction[]
+}
+
+export interface UserMenuAction {
+  label: string
+  icon: ReactNode
+  onClick: () => void
 }
 
 // Wraps a trigger (user avatar/name); clicking it opens the settings menu
-const UserMenu: FC<UserMenuProps> = ({ children, placement = 'top', className }) => {
+const UserMenu: FC<UserMenuProps> = ({ children, placement = 'top', className, actions }) => {
   const [open, setOpen] = useState(false)
   const [showAbout, setShowAbout] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -72,7 +81,7 @@ const UserMenu: FC<UserMenuProps> = ({ children, placement = 'top', className })
   useEffect(() => {
     const onClickOutside = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node))
-        setOpen(false)
+      { setOpen(false) }
     }
     document.addEventListener('mousedown', onClickOutside)
     return () => document.removeEventListener('mousedown', onClickOutside)
@@ -89,6 +98,25 @@ const UserMenu: FC<UserMenuProps> = ({ children, placement = 'top', className })
             placement === 'top' ? 'bottom-full mb-2 left-0' : 'top-full mt-2 right-0'
           }`}
         >
+          {/* conversation actions (mobile) */}
+          {actions && actions.length > 0 && (
+            <>
+              {actions.map(action => (
+                <button
+                  key={action.label}
+                  onClick={() => {
+                    setOpen(false)
+                    action.onClick()
+                  }}
+                  className='flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-zinc-700'
+                >
+                  <span className='shrink-0 text-gray-400 dark:text-gray-500'>{action.icon}</span>
+                  {action.label}
+                </button>
+              ))}
+              <div className='my-1 h-px bg-gray-100 dark:bg-zinc-700' />
+            </>
+          )}
           {/* theme */}
           <div className='flex items-center justify-between px-2.5 py-2'>
             <span className='text-sm text-gray-700 dark:text-gray-200'>Theme</span>

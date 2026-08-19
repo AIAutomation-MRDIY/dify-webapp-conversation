@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline'
 import AppIcon from '@/app/components/base/app-icon'
 import UserMenu from '@/app/components/user-menu'
+import type { UserMenuAction } from '@/app/components/user-menu'
 import useLarkUser from '@/hooks/use-lark-user'
 
 export interface IHeaderProps {
@@ -38,6 +39,31 @@ const Header: FC<IHeaderProps> = ({
 }) => {
   const user = useLarkUser()
   const initial = (user?.name || user?.email || '?').trim()[0]?.toUpperCase()
+
+  // on mobile these live in the avatar dropdown instead of as header icons
+  const menuActions: UserMenuAction[] | undefined = isMobile
+    ? [
+      {
+        label: 'New chat',
+        icon: <PencilSquareIcon className="h-4 w-4" />,
+        onClick: () => onCreateNewChat?.(),
+      },
+      ...(showConversationActions
+        ? [
+          {
+            label: 'Reset conversation',
+            icon: <ArrowPathIcon className="h-4 w-4" />,
+            onClick: () => onResetConversation?.(),
+          },
+          {
+            label: 'Change topic',
+            icon: <ChatBubbleLeftEllipsisIcon className="h-4 w-4" />,
+            onClick: () => onChangeTopic?.(),
+          },
+        ]
+        : []),
+    ]
+    : undefined
 
   return (
     <div className="relative shrink-0 flex items-center h-14 px-3 pc:px-4 bg-white border-b border-gray-200 dark:bg-zinc-900 dark:border-zinc-800">
@@ -72,9 +98,10 @@ const Header: FC<IHeaderProps> = ({
           <div className="max-w-[55%] text-sm text-gray-900 dark:text-gray-100 font-semibold truncate">{conversationName || title}</div>
         </div>
       )}
-      {/* right: actions (mobile only) */}
+      {/* right: actions. On mobile the header has no room for icons, so they
+          move into the avatar menu (see menuActions above). */}
       <div className="z-10 ml-auto flex items-center gap-1 shrink-0">
-        {showConversationActions && (
+        {!isMobile && showConversationActions && (
           <>
             <button
               title="Reset conversation"
@@ -92,16 +119,8 @@ const Header: FC<IHeaderProps> = ({
             </button>
           </>
         )}
-        {isMobile && (
-          <button
-            className="flex items-center justify-center h-9 w-9 rounded-lg hover:bg-gray-100 dark:hover:bg-zinc-800"
-            onClick={() => onCreateNewChat?.()}
-          >
-            <PencilSquareIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-          </button>
-        )}
         {user && (
-          <UserMenu placement="bottom">
+          <UserMenu placement="bottom" actions={menuActions}>
             {user.avatar
               ? (
                 <img
