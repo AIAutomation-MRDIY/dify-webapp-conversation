@@ -320,7 +320,7 @@ const Main: FC<IMainProps> = () => {
     let emptyRequiredInput = false
     promptConfig.prompt_variables.forEach((item) => {
       if (item.required && !currInputs[item.key])
-        emptyRequiredInput = true
+      { emptyRequiredInput = true }
     })
 
     if (emptyRequiredInput) {
@@ -655,7 +655,7 @@ const Main: FC<IMainProps> = () => {
       setConversationList(prevList => produce(prevList, (draft) => {
         const item = draft.find(item => item.id === id)
         if (item)
-          item.name = newName
+        { item.name = newName }
       }))
       notify({ type: 'success', message: t('common.api.success') })
     }
@@ -670,7 +670,7 @@ const Main: FC<IMainProps> = () => {
       setConversationList(prevList => prevList.filter(item => item.id !== id))
       // if the deleted conversation was the one currently open, fall back to a new chat
       if (id === getCurrConversationId())
-        handleConversationIdChange('-1')
+      { handleConversationIdChange('-1') }
       notify({ type: 'success', message: t('common.api.success') })
     }
     catch (e: any) {
@@ -713,24 +713,6 @@ const Main: FC<IMainProps> = () => {
           onChangeTopic={handleChangeTopic}
         />
       )}
-      {!isMobile && !isSidebarCollapsed && hasPromptVariables && (
-        <div className='flex items-center justify-end gap-1 h-12 px-4 shrink-0 border-b border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900'>
-          <button
-            title="Reset conversation"
-            className='flex items-center justify-center h-9 w-9 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-zinc-800 dark:hover:text-gray-300'
-            onClick={() => handleConversationIdChange('-1')}
-          >
-            <ArrowPathIcon className='h-[18px] w-[18px]' />
-          </button>
-          <button
-            title="Change topic"
-            className='flex items-center justify-center h-9 w-9 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-zinc-800 dark:hover:text-gray-300'
-            onClick={handleChangeTopic}
-          >
-            <ChatBubbleLeftEllipsisIcon className='h-[18px] w-[18px]' />
-          </button>
-        </div>
-      )}
       <div className="flex flex-1 min-h-0 bg-white dark:bg-zinc-900 overflow-hidden">
         {/* sidebar */}
         {!isMobile && !isSidebarCollapsed && renderSidebar()}
@@ -742,38 +724,67 @@ const Main: FC<IMainProps> = () => {
           </div>
         )}
         {/* main */}
-        <div
-          className='flex-grow flex flex-col h-full overflow-y-auto bg-[linear-gradient(180deg,rgba(249,250,251,0.9)_0%,rgba(242,244,247,0.9)_90.48%)] dark:bg-[linear-gradient(180deg,rgba(24,24,27,0.95)_0%,rgba(39,39,42,0.95)_90.48%)]'
-        >
-          <ConfigSence
-            conversationName={conversationName}
-            hideConversationNameBar={isMobile || isSidebarCollapsed}
-            hasSetInputs={hasSetInputs}
-            isPublicVersion={isShowPrompt}
-            siteInfo={APP_INFO}
-            promptConfig={promptConfig}
-            onStartChat={handleStartChat}
-            canEditInputs={canEditInputs}
-            savedInputs={currInputs as Record<string, any>}
-            onInputsChange={setCurrInputs}
-          ></ConfigSence>
+        <div className='flex-grow flex flex-col h-full min-w-0'>
+          {/* conversation bar: name and its actions share one row, and it sits
+              outside the scroll area so the title stays put while chatting.
+              On mobile / collapsed sidebar the Header already plays this role. */}
+          {!isMobile && !isSidebarCollapsed && (
+            <div className='flex items-center gap-1 h-12 px-4 shrink-0 border-b border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900'>
+              <div className='min-w-0 flex-1 truncate text-sm font-medium text-gray-900 dark:text-gray-100'>
+                {hasSetInputs ? conversationName : APP_INFO.title}
+              </div>
+              {hasPromptVariables && (
+                <>
+                  <button
+                    title="Reset conversation"
+                    className='flex items-center justify-center h-9 w-9 shrink-0 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-zinc-800 dark:hover:text-gray-300'
+                    onClick={() => handleConversationIdChange('-1')}
+                  >
+                    <ArrowPathIcon className='h-[18px] w-[18px]' />
+                  </button>
+                  <button
+                    title="Change topic"
+                    className='flex items-center justify-center h-9 w-9 shrink-0 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-zinc-800 dark:hover:text-gray-300'
+                    onClick={handleChangeTopic}
+                  >
+                    <ChatBubbleLeftEllipsisIcon className='h-[18px] w-[18px]' />
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+          {/* only the messages scroll */}
+          <div className='flex-1 min-h-0 overflow-y-auto bg-[linear-gradient(180deg,rgba(249,250,251,0.9)_0%,rgba(242,244,247,0.9)_90.48%)] dark:bg-[linear-gradient(180deg,rgba(24,24,27,0.95)_0%,rgba(39,39,42,0.95)_90.48%)]'>
+            <ConfigSence
+              conversationName={conversationName}
+              hideConversationNameBar
+              hasSetInputs={hasSetInputs}
+              isPublicVersion={isShowPrompt}
+              siteInfo={APP_INFO}
+              promptConfig={promptConfig}
+              onStartChat={handleStartChat}
+              canEditInputs={canEditInputs}
+              savedInputs={currInputs as Record<string, any>}
+              onInputsChange={setCurrInputs}
+            ></ConfigSence>
 
-          {
-            hasSetInputs && (
-              <div className='relative grow pc:w-[794px] max-w-full mobile:w-full pb-[180px] mx-auto mb-3.5' ref={chatListDomRef}>
-                <Chat
-                  chatList={chatList}
-                  onSend={handleSend}
-                  onStop={handleStop}
-                  onFeedback={handleFeedback}
-                  isResponding={isResponding}
-                  checkCanSend={checkCanSend}
-                  visionConfig={visionConfig}
-                  fileConfig={fileConfig}
-                  sidebarCollapsed={isSidebarCollapsed}
-                />
-              </div>)
-          }
+            {
+              hasSetInputs && (
+                <div className='relative grow pc:w-[794px] max-w-full mobile:w-full pb-[180px] mx-auto mb-3.5' ref={chatListDomRef}>
+                  <Chat
+                    chatList={chatList}
+                    onSend={handleSend}
+                    onStop={handleStop}
+                    onFeedback={handleFeedback}
+                    isResponding={isResponding}
+                    checkCanSend={checkCanSend}
+                    visionConfig={visionConfig}
+                    fileConfig={fileConfig}
+                    sidebarCollapsed={isSidebarCollapsed}
+                  />
+                </div>)
+            }
+          </div>
         </div>
       </div>
       <ChangeTopicModal
