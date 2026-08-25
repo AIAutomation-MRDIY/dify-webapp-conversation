@@ -24,7 +24,8 @@ const translation = {
       ' fournie par le développeur de l\'application.',
   },
   errorMessage: {
-    valueOfVarRequired: 'La valeur des variables ne peut pas être vide',
+    valueOfVarRequired: 'Veuillez sélectionner une catégorie de conversation pour continuer.',
+    queryRequired: 'Veuillez saisir un message avant de l\'envoyer.',
     waitForResponse:
       'Veuillez attendre que la réponse au message précédent soit terminée.',
     waitForFileUpload:

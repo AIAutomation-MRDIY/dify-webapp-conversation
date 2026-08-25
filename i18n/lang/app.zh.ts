@@ -20,7 +20,8 @@ const translation = {
     privacyPolicyRight: '。',
   },
   errorMessage: {
-    valueOfVarRequired: '变量值必填',
+    valueOfVarRequired: '请选择对话类别后继续。',
+    queryRequired: '请先输入内容再发送。',
     waitForResponse: '请等待上条信息响应完成',
     waitForFileUpload: '请等待所有文件上传完成后再发送',
   },

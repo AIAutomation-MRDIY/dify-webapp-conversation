@@ -24,7 +24,8 @@ const translation = {
       ' provided by the app developer.',
   },
   errorMessage: {
-    valueOfVarRequired: 'Variables value can not be empty',
+    valueOfVarRequired: 'Please select a conversation category to continue.',
+    queryRequired: 'Please type a message before sending.',
     waitForResponse:
       'Please wait for the response to the previous message to complete.',
     waitForFileUpload:

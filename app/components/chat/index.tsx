@@ -80,7 +80,8 @@ const Chat: FC<IChatProps> = ({
   const valid = () => {
     const query = queryRef.current
     if (!query || query.trim() === '') {
-      logError(t('app.errorMessage.valueOfVarRequired'))
+      // empty message box — not the same thing as a missing category
+      logError(t('app.errorMessage.queryRequired'))
       return false
     }
     return true
@@ -159,9 +160,9 @@ const Chat: FC<IChatProps> = ({
   const sendDirect = (message: string) => {
     const text = message.trim()
     if (!text)
-      return
+    { return }
     if (checkCanSend && !checkCanSend())
-      return
+    { return }
     onSend(text, [])
   }
 
@@ -204,54 +205,54 @@ const Chat: FC<IChatProps> = ({
             style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}
           >
             <div className='mx-auto w-full max-w-[794px] px-3.5'>
-            <FileContextProvider
-              value={attachmentFiles}
-              onChange={setAttachmentFiles}
-            >
-              <div className='relative'>
-                <div className='p-2 max-h-[150px] bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-2xl overflow-y-auto shadow-[0_4px_24px_rgba(0,0,0,0.08)] focus-within:border-primary-300 dark:focus-within:border-primary-600'>
-                  {
-                    visionConfig?.enabled && (
-                      <div className='pl-[42px]'>
-                        <ImageList
-                          list={files}
-                          onRemove={onRemove}
-                          onReUpload={onReUpload}
-                          onImageLinkLoadSuccess={onImageLinkLoadSuccess}
-                          onImageLinkLoadError={onImageLinkLoadError}
-                        />
-                      </div>
-                    )
-                  }
-                  {fileConfig?.enabled && <AttachmentFileList fileConfig={fileConfig} />}
-                  <Textarea
-                    className={`
+              <FileContextProvider
+                value={attachmentFiles}
+                onChange={setAttachmentFiles}
+              >
+                <div className='relative'>
+                  <div className='p-2 max-h-[150px] bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-2xl overflow-y-auto shadow-[0_4px_24px_rgba(0,0,0,0.08)] focus-within:border-primary-300 dark:focus-within:border-primary-600'>
+                    {
+                      visionConfig?.enabled && (
+                        <div className='pl-[42px]'>
+                          <ImageList
+                            list={files}
+                            onRemove={onRemove}
+                            onReUpload={onReUpload}
+                            onImageLinkLoadSuccess={onImageLinkLoadSuccess}
+                            onImageLinkLoadError={onImageLinkLoadError}
+                          />
+                        </div>
+                      )
+                    }
+                    {fileConfig?.enabled && <AttachmentFileList fileConfig={fileConfig} />}
+                    <Textarea
+                      className={`
                       block w-full px-2 py-[7px] leading-5 max-h-none text-base text-gray-700 dark:text-gray-200 bg-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500 outline-none appearance-none resize-none
                       ${fileConfig?.enabled ? 'pr-[88px]' : 'pr-[48px]'}
                       ${visionConfig?.enabled && 'pl-12'}
                     `}
-                    value={query}
-                    onChange={handleContentChange}
-                    onKeyUp={handleKeyUp}
-                    onKeyDown={handleKeyDown}
-                    placeholder={`Talk to ${APP_INFO.title}`}
-                    autoSize
-                  />
-                </div>
-                {
-                  visionConfig?.enabled && (
-                    <div className='absolute bottom-[9px] left-3 flex items-center'>
-                      <ChatImageUploader
-                        settings={visionConfig}
-                        onUpload={onUpload}
-                        disabled={files.length >= visionConfig.number_limits}
-                      />
-                      <div className='mx-1 w-[1px] h-4 bg-black/5' />
-                    </div>
-                  )
-                }
-                <div className='absolute bottom-[9px] right-3 flex items-center gap-1'>
-                  {/* Attachment (paperclip) button is disabled — not used for now.
+                      value={query}
+                      onChange={handleContentChange}
+                      onKeyUp={handleKeyUp}
+                      onKeyDown={handleKeyDown}
+                      placeholder={`Talk to ${APP_INFO.title}`}
+                      autoSize
+                    />
+                  </div>
+                  {
+                    visionConfig?.enabled && (
+                      <div className='absolute bottom-[9px] left-3 flex items-center'>
+                        <ChatImageUploader
+                          settings={visionConfig}
+                          onUpload={onUpload}
+                          disabled={files.length >= visionConfig.number_limits}
+                        />
+                        <div className='mx-1 w-[1px] h-4 bg-black/5' />
+                      </div>
+                    )
+                  }
+                  <div className='absolute bottom-[9px] right-3 flex items-center gap-1'>
+                    {/* Attachment (paperclip) button is disabled — not used for now.
                       To re-enable, restore the AttachmentTrigger import and uncomment:
                   {fileConfig?.enabled && (
                     <>
@@ -259,44 +260,44 @@ const Chat: FC<IChatProps> = ({
                       <div className='mx-0.5 w-[1px] h-4 bg-black/5' />
                     </>
                   )} */}
-                  {isResponding
-                    ? (
-                      <Tooltip
-                        selector='stop-tip'
-                        htmlContent={<div>Stop generating</div>}
-                      >
-                        <div
-                          className='flex items-center justify-center w-8 h-8 rounded-lg bg-gray-500 hover:bg-gray-600 cursor-pointer'
-                          onClick={onStop}
+                    {isResponding
+                      ? (
+                        <Tooltip
+                          selector='stop-tip'
+                          htmlContent={<div>Stop generating</div>}
                         >
-                          <StopIcon className='w-4 h-4 text-white' />
-                        </div>
-                      </Tooltip>
-                    )
-                    : (
-                      <Tooltip
-                        selector='send-tip'
-                        htmlContent={
-                          <div>
-                            <div>{t('common.operation.send')} Enter</div>
-                            <div>{t('common.operation.lineBreak')} Shift Enter</div>
+                          <div
+                            className='flex items-center justify-center w-8 h-8 rounded-lg bg-gray-500 hover:bg-gray-600 cursor-pointer'
+                            onClick={onStop}
+                          >
+                            <StopIcon className='w-4 h-4 text-white' />
                           </div>
-                        }
-                      >
-                        <div
-                          className='flex items-center justify-center w-8 h-8 rounded-lg bg-primary-600 hover:bg-primary-700 cursor-pointer'
-                          onClick={handleSend}
+                        </Tooltip>
+                      )
+                      : (
+                        <Tooltip
+                          selector='send-tip'
+                          htmlContent={
+                            <div>
+                              <div>{t('common.operation.send')} Enter</div>
+                              <div>{t('common.operation.lineBreak')} Shift Enter</div>
+                            </div>
+                          }
                         >
-                          <PaperAirplaneIcon className='w-4 h-4 text-white' />
-                        </div>
-                      </Tooltip>
-                    )}
+                          <div
+                            className='flex items-center justify-center w-8 h-8 rounded-lg bg-primary-600 hover:bg-primary-700 cursor-pointer'
+                            onClick={handleSend}
+                          >
+                            <PaperAirplaneIcon className='w-4 h-4 text-white' />
+                          </div>
+                        </Tooltip>
+                      )}
+                  </div>
                 </div>
+              </FileContextProvider>
+              <div className='mt-1.5 px-2 text-center text-xs text-gray-400 dark:text-gray-500'>
+                AI can make mistakes. Please review and verify all AI-generated content before use.
               </div>
-            </FileContextProvider>
-            <div className='mt-1.5 px-2 text-center text-xs text-gray-400 dark:text-gray-500'>
-              AI can make mistakes. Please review and verify all AI-generated content before use.
-            </div>
             </div>
           </div>
         )

@@ -24,7 +24,8 @@ const translation = {
       ' proporcionada por el desarrollador de la aplicación.',
   },
   errorMessage: {
-    valueOfVarRequired: 'El valor de las variables no puede estar vacío',
+    valueOfVarRequired: 'Selecciona una categoría de conversación para continuar.',
+    queryRequired: 'Escribe un mensaje antes de enviarlo.',
     waitForResponse:
       'Por favor espere a que la respuesta al mensaje anterior se complete.',
     waitForFileUpload:

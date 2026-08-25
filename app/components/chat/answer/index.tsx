@@ -43,7 +43,7 @@ function OpBtn({ children, onClick, title, active }: { children: React.ReactNode
 const parseThinkContent = (content: string) => {
   const match = content.match(/^\s*<think>([\s\S]*?)(?:<\/think>([\s\S]*))?$/)
   if (!match)
-    return { thought: null, answer: content }
+  { return { thought: null, answer: content } }
   return {
     thought: (match[1] || '').trim(),
     answer: (match[2] || '').replace(/^\n+/, ''),
@@ -188,14 +188,9 @@ const Answer: FC<IAnswerProps> = ({
   return (
     <div key={id}>
       <div className="flex items-start">
-        <div className={`${s.answerIcon} w-10 h-10 shrink-0`}>
-          {isResponding
-            && (
-              <div className={s.typeingIcon}>
-                <LoadingAnim type="avatar" />
-              </div>
-            )}
-        </div>
+        {/* the "typing" dots badge that used to overlay this avatar is gone —
+            the loading dots inside the bubble already signal the same thing */}
+        <div className={`${s.answerIcon} w-10 h-10 shrink-0`} />
         <div className={`${s.answerWrap} max-w-[calc(100%-3rem)]`}>
           {/* bubble first; actions sit to its right and wrap below when space is tight */}
           <div className='flex flex-wrap content-start items-end gap-1'>
@@ -203,53 +198,53 @@ const Answer: FC<IAnswerProps> = ({
               <div
                 className='ml-2 py-3 px-4 rounded-2xl break-words bg-[linear-gradient(180deg,#fff_0%,rgba(255,255,255,0.6)_100%)] dark:bg-[linear-gradient(180deg,#27272A_0%,rgba(39,39,42,0.6)_100%)]'
               >
-              {(isResponding && (isAgentMode ? (!content && (agent_thoughts || []).filter(item => !!item.thought || !!item.tool).length === 0) : !content))
-                ? (
-                  <div className="flex items-center justify-center w-6 h-5">
-                    <LoadingAnim type="text" />
-                  </div>
-                )
-                : (isAgentMode
-                  ? agentModeAnswer
-                  : (
-                    <>
-                      {thought && <ThinkPanel thought={thought} isThinking={!!isResponding && !answerContent} />}
-                      {(answerContent || !thought) && <StreamdownMarkdown content={answerContent || (thought ? '' : content)} />}
-                    </>
-                  ))}
-              {suggestedQuestions.length > 0 && (
-                <div className="mt-3">
-                  <div className="flex gap-1 mt-1 flex-wrap">
-                    {suggestedQuestions.map((suggestion, index) => (
-                      <div key={index} className="flex items-center gap-1">
-                        <Button className="text-sm" type="link" onClick={() => suggestionClick(suggestion)}>{suggestion}</Button>
-                      </div>
+                {(isResponding && (isAgentMode ? (!content && (agent_thoughts || []).filter(item => !!item.thought || !!item.tool).length === 0) : !content))
+                  ? (
+                    <div className="flex items-center justify-center w-6 h-5">
+                      <LoadingAnim type="text" />
+                    </div>
+                  )
+                  : (isAgentMode
+                    ? agentModeAnswer
+                    : (
+                      <>
+                        {thought && <ThinkPanel thought={thought} isThinking={!!isResponding && !answerContent} />}
+                        {(answerContent || !thought) && <StreamdownMarkdown content={answerContent || (thought ? '' : content)} />}
+                      </>
                     ))}
+                {suggestedQuestions.length > 0 && (
+                  <div className="mt-3">
+                    <div className="flex gap-1 mt-1 flex-wrap">
+                      {suggestedQuestions.map((suggestion, index) => (
+                        <div key={index} className="flex items-center gap-1">
+                          <Button className="text-sm" type="link" onClick={() => suggestionClick(suggestion)}>{suggestion}</Button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
             {/* message actions: like, dislike, copy, regenerate */}
             {!feedbackDisabled && !item.feedbackDisabled && !isResponding && (
               <div className={`${s.itemOperation} w-fit shrink-0 items-center gap-0.5 rounded-[10px] border border-gray-200 bg-white p-0.5 shadow-sm dark:border-zinc-700 dark:bg-zinc-800`}>
-              <OpBtn
-                title={t('common.operation.like') as string}
-                active={feedback?.rating === 'like'}
-                onClick={() => toggleRating('like')}
-              >
-                <RatingIcon isLike={true} />
-              </OpBtn>
-              <OpBtn
-                title={t('common.operation.dislike') as string}
-                active={feedback?.rating === 'dislike'}
-                onClick={() => toggleRating('dislike')}
-              >
-                <RatingIcon isLike={false} />
-              </OpBtn>
-              <OpBtn title='Copy' onClick={handleCopy}>
-                <ClipboardDocumentIcon className='w-4 h-4' />
-              </OpBtn>
+                <OpBtn
+                  title={t('common.operation.like') as string}
+                  active={feedback?.rating === 'like'}
+                  onClick={() => toggleRating('like')}
+                >
+                  <RatingIcon isLike={true} />
+                </OpBtn>
+                <OpBtn
+                  title={t('common.operation.dislike') as string}
+                  active={feedback?.rating === 'dislike'}
+                  onClick={() => toggleRating('dislike')}
+                >
+                  <RatingIcon isLike={false} />
+                </OpBtn>
+                <OpBtn title='Copy' onClick={handleCopy}>
+                  <ClipboardDocumentIcon className='w-4 h-4' />
+                </OpBtn>
                 {onRegenerate && (
                   <OpBtn title='Regenerate' onClick={onRegenerate}>
                     <ArrowPathIcon className='w-4 h-4' />

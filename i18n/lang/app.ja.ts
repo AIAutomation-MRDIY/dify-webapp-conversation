@@ -24,7 +24,8 @@ const translation = {
       ' をお読みください。',
   },
   errorMessage: {
-    valueOfVarRequired: '変数の値は空にできません',
+    valueOfVarRequired: '続けるには会話のカテゴリーを選択してください。',
+    queryRequired: '送信する前にメッセージを入力してください。',
     waitForResponse:
       '前のメッセージの応答が完了するまでお待ちください。',
     waitForFileUpload:

@@ -24,7 +24,8 @@ const translation = {
       ' được cung cấp bởi nhà phát triển ứng dụng.',
   },
   errorMessage: {
-    valueOfVarRequired: 'Giá trị của biến không thể để trống',
+    valueOfVarRequired: 'Vui lòng chọn danh mục cuộc trò chuyện để tiếp tục.',
+    queryRequired: 'Vui lòng nhập tin nhắn trước khi gửi.',
     waitForResponse:
       'Vui lòng đợi phản hồi từ tin nhắn trước khi gửi tin nhắn mới.',
     waitForFileUpload:
