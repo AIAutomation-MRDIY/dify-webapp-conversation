@@ -131,8 +131,9 @@ const Main: FC<IMainProps> = () => {
       setCurrInputs(notSyncToStateInputs)
     }
 
-    // update chat list of current conversation
-    if (!isNewConversation && !conversationIdChangeBecauseOfNew && !isResponding) {
+    // update chat list of current conversation ('' means there is no saved
+    // conversation to load yet, so there is nothing to fetch)
+    if (currConversationId && !isNewConversation && !conversationIdChangeBecauseOfNew && !isResponding) {
       fetchChatList(currConversationId).then((res: any) => {
         const { data } = res
         const newChatList: ChatItem[] = generateNewChatListWithOpenStatement(notSyncToStateIntroduction, notSyncToStateInputs)
@@ -486,7 +487,11 @@ const Main: FC<IMainProps> = () => {
         setConversationIdChangeBecauseOfNew(false)
         resetNewConversationInputs()
         setChatNotStarted()
-        setCurrConversationId(tempNewConversationId, APP_ID, true)
+        // only adopt the new id if the stream actually reported one. Stopping
+        // early (or aborting before the first chunk) leaves this empty, and
+        // storing '' would leave us on a conversation id that is neither '-1'
+        // nor real — which then requested messages for an empty id.
+        if (tempNewConversationId) { setCurrConversationId(tempNewConversationId, APP_ID, true) }
         setRespondingFalse()
       },
       onFile(file) {

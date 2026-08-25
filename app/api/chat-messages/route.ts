@@ -18,7 +18,8 @@ export async function POST(request: NextRequest) {
     query,
     user,
     response_mode: responseMode,
-    conversation_id: conversationId ?? undefined,
+    // '' would be sent as an empty id; treat it as "start a new conversation"
+    conversation_id: conversationId || undefined,
     files,
   })
   // streaming responses expose the raw Readable on .data, same as before
