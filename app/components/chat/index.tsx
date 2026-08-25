@@ -19,7 +19,8 @@ import { AttachmentFileList } from '@/app/components/base/file-uploader-in-attac
 import { FileContextProvider } from '@/app/components/base/file-uploader-in-attachment/store'
 import type { FileEntity, FileUpload } from '@/app/components/base/file-uploader-in-attachment/types'
 import { getProcessedFiles } from '@/app/components/base/file-uploader-in-attachment/utils'
-import { PaperAirplaneIcon, StopIcon } from '@heroicons/react/24/solid'
+// StopIcon is intentionally not imported: the stop button is disabled
+import { PaperAirplaneIcon } from '@heroicons/react/24/solid'
 import { APP_INFO } from '@/config'
 
 export interface IChatProps {
@@ -260,38 +261,35 @@ const Chat: FC<IChatProps> = ({
                       <div className='mx-0.5 w-[1px] h-4 bg-black/5' />
                     </>
                   )} */}
-                    {isResponding
-                      ? (
-                        <Tooltip
-                          selector='stop-tip'
-                          htmlContent={<div>Stop generating</div>}
-                        >
-                          <div
-                            className='flex items-center justify-center w-8 h-8 rounded-lg bg-gray-500 hover:bg-gray-600 cursor-pointer'
-                            onClick={onStop}
-                          >
-                            <StopIcon className='w-4 h-4 text-white' />
-                          </div>
-                        </Tooltip>
-                      )
-                      : (
-                        <Tooltip
-                          selector='send-tip'
-                          htmlContent={
+                    {/* Stop button is disabled — while a reply streams the send
+                        button is simply shown as busy. To re-enable, restore the
+                        StopIcon import and swap this for the isResponding ?
+                        <stop> : <send> branch (onStop is still wired up, and
+                        /api/chat-messages/[taskId]/stop still works). */}
+                    <Tooltip
+                      selector='send-tip'
+                      htmlContent={
+                        isResponding
+                          ? <div>Waiting for the reply…</div>
+                          : (
                             <div>
                               <div>{t('common.operation.send')} Enter</div>
                               <div>{t('common.operation.lineBreak')} Shift Enter</div>
                             </div>
-                          }
-                        >
-                          <div
-                            className='flex items-center justify-center w-8 h-8 rounded-lg bg-primary-600 hover:bg-primary-700 cursor-pointer'
-                            onClick={handleSend}
-                          >
-                            <PaperAirplaneIcon className='w-4 h-4 text-white' />
-                          </div>
-                        </Tooltip>
-                      )}
+                          )
+                      }
+                    >
+                      <div
+                        className={`flex items-center justify-center w-8 h-8 rounded-lg ${
+                          isResponding
+                            ? 'bg-primary-600/40 cursor-not-allowed'
+                            : 'bg-primary-600 hover:bg-primary-700 cursor-pointer'
+                        }`}
+                        onClick={isResponding ? undefined : handleSend}
+                      >
+                        <PaperAirplaneIcon className='w-4 h-4 text-white' />
+                      </div>
+                    </Tooltip>
                   </div>
                 </div>
               </FileContextProvider>
