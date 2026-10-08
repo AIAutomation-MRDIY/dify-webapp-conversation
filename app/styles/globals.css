@@ -167,3 +167,28 @@ html.dark .markdown-body blockquote {
   color: #9CA3AF;
   border-left-color: #3F3F46;
 }
+
+/* Override streamdown link colors - blue in light mode, lighter blue in dark mode */
+.streamdown-markdown a {
+  color: #2563eb !important;
+  text-decoration: underline !important;
+  text-decoration-color: #2563eb !important;
+  text-underline-offset: 2px !important;
+}
+
+.streamdown-markdown a:hover {
+  color: #1d4ed8 !important;
+  text-decoration-color: #1d4ed8 !important;
+}
+
+.dark .streamdown-markdown a {
+  color: #60a5fa !important;
+  text-decoration: underline !important;
+  text-decoration-color: #60a5fa !important;
+  text-underline-offset: 2px !important;
+}
+
+.dark .streamdown-markdown a:hover {
+  color: #93c5fd !important;
+  text-decoration-color: #93c5fd !important;
+}
